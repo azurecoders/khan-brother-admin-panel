@@ -1,73 +1,96 @@
-import { Briefcase, Home, LogOut, Mail, Settings, X, ChevronRight } from 'lucide-react';
-import { JSX } from 'react';
+import {
+  Briefcase,
+  LayoutGrid,
+  LogOut,
+  MessageSquare,
+  Settings,
+  Users,
+  FileText,
+  Package,
+  X,
+} from "lucide-react";
 
-const DashboardSidebar = ({ links, activeLink, onLinkChange, isSidebarOpen, onToggle }: {
+interface DashboardSidebarProps {
   links: { id: string; label: string }[];
   activeLink: string;
   onLinkChange: (linkId: string) => void;
   isSidebarOpen: boolean;
   onToggle: (isOpen: boolean) => void;
-}) => {
-  const iconMap: Record<string, JSX.Element> = {
-    services: <Settings size={20} />,
-    projects: <Briefcase size={20} />,
-    contact: <Mail size={20} />
+}
+
+const DashboardSidebar = ({
+  links,
+  activeLink,
+  onLinkChange,
+  isSidebarOpen,
+  onToggle,
+}: DashboardSidebarProps) => {
+  // Icon mapping for each menu item (matching your requirements)
+  const iconMap: Record<string, React.ReactNode> = {
+    overview: <LayoutGrid size={20} />,
+    services: <Briefcase size={20} />,
+    projects: <FileText size={20} />,
+    products: <Package size={20} />,
+    testimonials: <Users size={20} />,
+    messages: <MessageSquare size={20} />,
+    settings: <Settings size={20} />,
   };
 
   return (
     <>
-      {/* Mobile Overlay */}
+      {/* Custom CSS for hiding scrollbar */}
+      <style>{`
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
+
+      {/* Mobile Overlay - Dark backdrop when sidebar is open on mobile */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-foreground/20 backdrop-blur-sm md:hidden z-40 transition-opacity"
+          className="fixed inset-0 bg-black/50 md:hidden z-40 transition-opacity"
           onClick={() => onToggle(false)}
+          aria-hidden="true"
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar Container */}
       <aside
-        className={`fixed md:relative top-0 left-0 h-screen w-72 bg-card border-r border-border transition-transform duration-300 ease-out z-50 md:z-auto flex flex-col shadow-xl md:shadow-none ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-          }`}
+        className={`fixed md:static top-0 left-0 h-screen bg-[#1E40AF] transition-transform duration-300 z-50 md:z-auto flex flex-col shadow-xl md:shadow-none ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        }`}
+        style={{
+          width: "15%",
+          minWidth: "200px",
+          maxWidth: "320px",
+          margin: 0,
+          padding: 0,
+        }}
       >
-        {/* Sidebar Header */}
-        <div className="p-6 border-b border-border">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-                <Home size={24} className="text-primary-foreground" />
-              </div>
-              <div>
-                <h1 className="text-xl font-heading font-bold text-foreground">Dashboard</h1>
-                <p className="text-xs text-muted-foreground font-medium">Admin Panel</p>
-              </div>
+        {/* Header Section */}
+        <div className="p-6 pb-8 border-b border-white/10">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-white">KB Admin</h1>
+              <p className="text-blue-200 text-sm mt-1">Content Management</p>
             </div>
+            {/* Close button for mobile */}
             <button
               onClick={() => onToggle(false)}
-              className="md:hidden p-2 hover:bg-accent rounded-lg transition-colors"
+              className="md:hidden text-white hover:text-blue-200 p-2 transition-colors rounded-lg hover:bg-white/10"
+              aria-label="Close sidebar"
             >
-              <X size={20} className="text-muted-foreground" />
+              <X size={24} />
             </button>
-          </div>
-
-          {/* User Info Card */}
-          <div className="bg-gradient-to-br from-primary/5 to-secondary/5 border border-border rounded-xl p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-secondary to-secondary/80 rounded-full flex items-center justify-center text-secondary-foreground font-heading font-bold text-sm shadow-lg shadow-secondary/20">
-                JD
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-foreground truncate">John Doe</p>
-                <p className="text-xs text-muted-foreground">Administrator</p>
-              </div>
-            </div>
           </div>
         </div>
 
-        {/* Navigation Links */}
-        <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
-          <p className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Navigation
-          </p>
+        {/* Navigation Menu */}
+        <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto scrollbar-hide">
           {links.map((link) => {
             const isActive = activeLink === link.id;
             return (
@@ -75,70 +98,40 @@ const DashboardSidebar = ({ links, activeLink, onLinkChange, isSidebarOpen, onTo
                 key={link.id}
                 onClick={() => {
                   onLinkChange(link.id);
-                  onToggle(false);
+                  onToggle(false); // Close sidebar on mobile after selection
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden ${isActive
-                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
-                    : 'text-foreground hover:bg-accent hover:text-accent-foreground'
-                  }`}
+                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-lg transition-all duration-200 font-medium ${
+                  isActive
+                    ? "bg-[#F97316] text-white shadow-lg" // Orange active state
+                    : "text-blue-100 hover:bg-[#1E3A8A] hover:text-white" // Hover state
+                }`}
+                aria-current={isActive ? "page" : undefined}
               >
-                {/* Active Indicator */}
-                {isActive && (
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-secondary rounded-r-full" />
-                )}
-
-                {/* Icon Container */}
-                <div
-                  className={`flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200 ${isActive
-                      ? 'bg-primary-foreground/10'
-                      : 'bg-accent group-hover:bg-primary/10 group-hover:scale-110'
-                    }`}
-                >
-                  <span className={isActive ? 'text-primary-foreground' : 'text-primary'}>
-                    {iconMap[link.id]}
-                  </span>
-                </div>
-
-                {/* Label */}
-                <span className="font-semibold text-sm flex-1 text-left">{link.label}</span>
-
-                {/* Arrow Indicator */}
-                <ChevronRight
-                  size={18}
-                  className={`transition-all duration-200 ${isActive
-                      ? 'opacity-100 translate-x-0'
-                      : 'opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0'
-                    }`}
-                />
+                <span className="flex-shrink-0">{iconMap[link.id]}</span>
+                <span className="text-[15px]">{link.label}</span>
               </button>
             );
           })}
         </nav>
 
-        {/* Footer */}
-        <div className="p-4 border-t border-border space-y-3">
-          {/* Quick Stats */}
-          <div className="grid grid-cols-2 gap-2 mb-2">
-            <div className="bg-accent/50 border border-border rounded-lg p-3 text-center">
-              <p className="text-xs text-muted-foreground font-medium">Projects</p>
-              <p className="text-lg font-heading font-bold text-primary mt-0.5">24</p>
-            </div>
-            <div className="bg-accent/50 border border-border rounded-lg p-3 text-center">
-              <p className="text-xs text-muted-foreground font-medium">Messages</p>
-              <p className="text-lg font-heading font-bold text-secondary mt-0.5">8</p>
-            </div>
-          </div>
-
-          {/* Logout Button */}
-          <button className="w-full flex items-center justify-center gap-2 px-4 py-3 text-foreground hover:text-destructive-foreground bg-accent hover:bg-destructive rounded-xl transition-all duration-200 font-semibold text-sm border border-border hover:border-destructive shadow-sm hover:shadow-lg group">
-            <LogOut size={18} className="group-hover:scale-110 transition-transform" />
+        {/* Footer with Logout Button */}
+        <div className="p-4 border-t border-white/10">
+          <button
+            onClick={() => {
+              // Add logout logic here
+              const confirmLogout = confirm("Are you sure you want to logout?");
+              if (confirmLogout) {
+                alert(
+                  "Logout functionality will be connected to authentication system."
+                );
+                // Later: Add actual logout logic (clear session, redirect, etc.)
+              }
+            }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-[#EF4444] hover:bg-[#DC2626] text-white rounded-lg transition-all duration-200 font-semibold shadow-sm hover:shadow-md"
+          >
+            <LogOut size={20} />
             <span>Logout</span>
           </button>
-
-          {/* Copyright */}
-          <p className="text-xs text-muted-foreground text-center font-medium pt-2">
-            © 2025 Dashboard Pro
-          </p>
         </div>
       </aside>
     </>

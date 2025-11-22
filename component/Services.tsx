@@ -1,351 +1,568 @@
-import { useState, ChangeEvent, KeyboardEvent } from 'react';
-import { Plus, X, Upload, AlertCircle } from 'lucide-react';
+"use client";
+import { useState, ChangeEvent } from "react";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Search,
+  Filter,
+  Upload,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 
 interface Service {
   id: number;
-  name: string;
+  title: string;
   description: string;
-  icon: string | null;
-  subServices: string[];
-}
-
-interface FormData {
-  name: string;
-  description: string;
-  icon: string | null;
-  subServices: string[];
-}
-
-interface Errors {
-  name?: string;
-  description?: string;
-  icon?: string;
-  subServices?: string;
+  image: string | null;
+  category: string;
+  status: "active" | "inactive";
 }
 
 const Services = () => {
-  const [services, setServices] = useState<Service[]>([]);
-  const [formData, setFormData] = useState<FormData>({
-    name: '',
-    description: '',
-    icon: null,
-    subServices: []
-  });
-  const [subServiceInput, setSubServiceInput] = useState<string>('');
-  const [errors, setErrors] = useState<Errors>({});
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [services, setServices] = useState<Service[]>([
+    {
+      id: 1,
+      title: "Electrical Solutions",
+      description:
+        "Comprehensive industrial, commercial, and residential electrical installations and maintenance services.",
+      image: null,
+      category: "Electrical",
+      status: "active",
+    },
+    {
+      id: 2,
+      title: "Solar Energy Systems",
+      description:
+        "Turnkey solar solutions including on-grid, off-grid, and hybrid systems with net metering.",
+      image: null,
+      category: "Solar",
+      status: "active",
+    },
+    {
+      id: 3,
+      title: "IT & Networking",
+      description:
+        "Advanced networking, structured cabling, server setups, and IT infrastructure solutions.",
+      image: null,
+      category: "IT & Networking",
+      status: "active",
+    },
+    {
+      id: 4,
+      title: "Construction Services",
+      description:
+        "Civil works, interior renovation, and structural engineering for residential and commercial projects.",
+      image: null,
+      category: "Construction",
+      status: "active",
+    },
+    {
+      id: 5,
+      title: "CCTV & Security",
+      description:
+        "State-of-the-art surveillance and access control systems for enhanced security and monitoring.",
+      image: null,
+      category: "CCTV & Security",
+      status: "active",
+    },
+    {
+      id: 6,
+      title: "Mechanical & Plumbing",
+      description:
+        "Expert mechanical installations and plumbing system designs for modern infrastructure.",
+      image: null,
+      category: "Mechanical & Plumbing",
+      status: "active",
+    },
+  ]);
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingService, setEditingService] = useState<Service | null>(null);
+
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    category: "",
+    status: "active" as "active" | "inactive",
+    image: null as string | null,
+  });
+
+  // Available categories
+  const categories = [
+    "Electrical",
+    "Solar",
+    "IT & Networking",
+    "Construction",
+    "CCTV & Security",
+    "Mechanical & Plumbing",
+    "Other",
+  ];
+
+  // Filter services based on search and filters
+  const filteredServices = services.filter((service) => {
+    const matchesSearch =
+      service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      service.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      categoryFilter === "all" || service.category === categoryFilter;
+    const matchesStatus =
+      statusFilter === "all" || service.status === statusFilter;
+
+    return matchesSearch && matchesCategory && matchesStatus;
+  });
+
+  const handleInputChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name as keyof Errors]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleIconUpload = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (event) => {
-        setFormData(prev => ({ ...prev, icon: event.target?.result as string }));
-        if (errors.icon) {
-          setErrors(prev => ({ ...prev, icon: '' }));
-        }
+        setFormData((prev) => ({
+          ...prev,
+          image: event.target?.result as string,
+        }));
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleAddSubService = () => {
-    if (subServiceInput.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        subServices: [...prev.subServices, subServiceInput.trim()]
-      }));
-      setSubServiceInput('');
-    }
-  };
-
-  const handleRemoveSubService = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      subServices: prev.subServices.filter((_, i) => i !== index)
-    }));
-  };
-
-  const validateForm = (): Errors => {
-    const newErrors: Errors = {};
-    if (!formData.name.trim()) newErrors.name = 'Service name is required';
-    if (!formData.description.trim()) newErrors.description = 'Description is required';
-    if (!formData.icon) newErrors.icon = 'Service icon is required';
-    if (formData.subServices.length === 0) newErrors.subServices = 'At least one sub-service is required';
-    return newErrors;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleAddService = (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors = validateForm();
+    const newService: Service = {
+      id: Date.now(),
+      ...formData,
+    };
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
+    setServices((prev) => [...prev, newService]);
+    setFormData({
+      title: "",
+      description: "",
+      category: "",
+      status: "active",
+      image: null,
+    });
+    setIsAddModalOpen(false);
+  };
 
-    setIsSubmitting(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setServices(prev => [...prev, { ...formData, id: Date.now() }]);
-      setFormData({ name: '', description: '', icon: null, subServices: [] });
-      setErrors({});
-    } finally {
-      setIsSubmitting(false);
+  const handleEditService = (service: Service) => {
+    setEditingService(service);
+    setFormData({
+      title: service.title,
+      description: service.description,
+      category: service.category,
+      status: service.status,
+      image: service.image,
+    });
+    setIsAddModalOpen(true);
+  };
+
+  const handleUpdateService = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingService) {
+      setServices((prev) =>
+        prev.map((service) =>
+          service.id === editingService.id
+            ? { ...service, ...formData }
+            : service
+        )
+      );
+      setEditingService(null);
+      setFormData({
+        title: "",
+        description: "",
+        category: "",
+        status: "active",
+        image: null,
+      });
+      setIsAddModalOpen(false);
     }
   };
 
-  const handleRemoveService = (id: number) => {
-    setServices(prev => prev.filter(service => service.id !== id));
+  const handleDeleteService = (id: number) => {
+    if (confirm("Are you sure you want to delete this service?")) {
+      setServices((prev) => prev.filter((service) => service.id !== id));
+    }
   };
 
-  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleAddSubService();
-    }
+  const toggleServiceStatus = (id: number) => {
+    setServices((prev) =>
+      prev.map((service) =>
+        service.id === id
+          ? {
+              ...service,
+              status: service.status === "active" ? "inactive" : "active",
+            }
+          : service
+      )
+    );
+  };
+
+  const resetForm = () => {
+    setFormData({
+      title: "",
+      description: "",
+      category: "",
+      status: "active",
+      image: null,
+    });
+    setEditingService(null);
+    setIsAddModalOpen(false);
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-4xl sm:text-5xl font-heading font-bold text-primary mb-3">
-            Services Management
-          </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl">
-            Create and manage professional services with detailed descriptions and sub-services. Build a comprehensive service catalog for your business.
-          </p>
-        </div>
+    <div className="space-y-6 max-w-7xl">
+      {/* Header */}
+      <div>
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">Services</h1>
+        <p className="text-gray-600 text-lg">Manage your website content</p>
+      </div>
 
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Form Section */}
-          <div className="lg:col-span-1">
-            <div className="bg-card border border-border rounded-lg p-6 shadow-sm sticky top-6">
-              <h2 className="text-2xl font-heading font-bold text-primary mb-6">Add New Service</h2>
-
-              <form onSubmit={handleSubmit} className="space-y-5">
-                {/* Service Name */}
-                <div>
-                  <label htmlFor="name" className="block text-sm font-semibold text-foreground mb-2">
-                    Service Name
-                  </label>
-                  <input
-                    id="name"
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    placeholder="e.g., Consulting Services"
-                    className={`w-full px-4 py-2.5 border rounded-lg font-sans text-sm transition-colors ${errors.name
-                      ? 'border-destructive focus:ring-2 focus:ring-destructive/20 focus:outline-none'
-                      : 'border-input focus:border-primary focus:ring-2 focus:ring-primary/10 focus:outline-none'
-                      }`}
-                  />
-                  {errors.name && (
-                    <p className="text-destructive text-xs mt-1 flex items-center gap-1">
-                      <AlertCircle size={14} /> {errors.name}
-                    </p>
-                  )}
-                </div>
-
-                {/* Description */}
-                <div>
-                  <label htmlFor="description" className="block text-sm font-semibold text-foreground mb-2">
-                    Description
-                  </label>
-                  <textarea
-                    id="description"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    placeholder="Describe your service..."
-                    rows={3}
-                    className={`w-full px-4 py-2.5 border rounded-lg font-sans text-sm transition-colors resize-none ${errors.description
-                      ? 'border-destructive focus:ring-2 focus:ring-destructive/20 focus:outline-none'
-                      : 'border-input focus:border-primary focus:ring-2 focus:ring-primary/10 focus:outline-none'
-                      }`}
-                  />
-                  {errors.description && (
-                    <p className="text-destructive text-xs mt-1 flex items-center gap-1">
-                      <AlertCircle size={14} /> {errors.description}
-                    </p>
-                  )}
-                </div>
-
-                {/* Icon Upload */}
-                <div>
-                  <label htmlFor="icon" className="block text-sm font-semibold text-foreground mb-2">
-                    Service Icon
-                  </label>
-                  <div className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${errors.icon
-                    ? 'border-destructive bg-destructive/5'
-                    : 'border-border hover:border-primary hover:bg-accent'
-                    }`}>
-                    <input
-                      id="icon"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleIconUpload}
-                      className="hidden"
-                    />
-                    <label htmlFor="icon" className="cursor-pointer block">
-                      {formData.icon ? (
-                        <div className="space-y-2">
-                          <img src={formData.icon} alt="Preview" className="w-16 h-16 mx-auto rounded-lg object-cover" />
-                          <p className="text-xs text-muted-foreground">Click to change</p>
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          <Upload className="mx-auto text-secondary" size={32} />
-                          <p className="text-sm font-medium text-foreground">Upload icon</p>
-                          <p className="text-xs text-muted-foreground">PNG, JPG, SVG</p>
-                        </div>
-                      )}
-                    </label>
-                  </div>
-                  {errors.icon && (
-                    <p className="text-destructive text-xs mt-1 flex items-center gap-1">
-                      <AlertCircle size={14} /> {errors.icon}
-                    </p>
-                  )}
-                </div>
-
-                {/* Sub-Services */}
-                <div>
-                  <label htmlFor="subservice" className="block text-sm font-semibold text-foreground mb-2">
-                    Sub-Services
-                  </label>
-                  <div className="flex gap-2 mb-3">
-                    <input
-                      id="subservice"
-                      type="text"
-                      value={subServiceInput}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => setSubServiceInput(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                      placeholder="Add sub-service name"
-                      className="flex-1 px-4 py-2.5 border border-input rounded-lg font-sans text-sm focus:border-primary focus:ring-2 focus:ring-primary/10 focus:outline-none transition-colors"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddSubService}
-                      className="px-4 py-2.5 bg-secondary text-secondary-foreground rounded-lg font-medium text-sm hover:bg-secondary/90 transition-colors flex items-center gap-2"
-                    >
-                      <Plus size={18} />
-                    </button>
-                  </div>
-
-                  {/* Sub-Services List */}
-                  <div className="space-y-2">
-                    {formData.subServices.map((subService, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between bg-accent p-3 rounded-lg border border-border"
-                      >
-                        <span className="text-sm text-foreground font-medium">{subService}</span>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveSubService(index)}
-                          className="text-muted-foreground hover:text-destructive transition-colors"
-                        >
-                          <X size={18} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                  {errors.subServices && (
-                    <p className="text-destructive text-xs mt-2 flex items-center gap-1">
-                      <AlertCircle size={14} /> {errors.subServices}
-                    </p>
-                  )}
-                </div>
-
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-3 bg-primary text-primary-foreground rounded-lg font-semibold text-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors mt-8"
-                >
-                  {isSubmitting ? 'Adding Service...' : 'Add Service'}
-                </button>
-              </form>
+      {/* Controls Bar */}
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+          {/* Search and Filters */}
+          <div className="flex flex-col sm:flex-row gap-4 flex-1 w-full lg:w-auto">
+            {/* Search */}
+            <div className="relative flex-1 sm:flex-none">
+              <Search
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={20}
+              />
+              <input
+                type="text"
+                placeholder="Search services..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent w-full sm:w-64"
+              />
             </div>
+
+            {/* Category Filter */}
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent"
+            >
+              <option value="all">All Categories</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+
+            {/* Status Filter */}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent"
+            >
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
           </div>
 
-          {/* Services Grid */}
-          <div className="lg:col-span-2">
-            {services.length === 0 ? (
-              <div className="text-center py-16 bg-card border border-border rounded-lg">
-                <p className="text-muted-foreground text-lg">No services added yet</p>
-                <p className="text-muted-foreground text-sm mt-1">Create your first service to get started</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {services.map((service) => (
-                  <div
-                    key={service.id}
-                    className="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-all duration-300 group"
-                  >
-                    {/* Icon and Header */}
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="w-16 h-16 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300 overflow-hidden">
-                        {service.icon ? (
-                          <img src={service.icon} alt={service.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <Upload className="text-secondary" size={24} />
-                        )}
-                      </div>
-                      <button
-                        onClick={() => handleRemoveService(service.id)}
-                        className="text-muted-foreground hover:text-destructive transition-colors"
-                      >
-                        <X size={20} />
-                      </button>
-                    </div>
-
-                    {/* Service Name and Description */}
-                    <h3 className="text-lg font-heading font-bold text-primary mb-2 line-clamp-1">
-                      {service.name}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                      {service.description}
-                    </p>
-
-                    {/* Sub-Services */}
-                    <div>
-                      <p className="text-xs font-semibold text-foreground mb-2 uppercase tracking-wider">
-                        Sub-Services
-                      </p>
-                      <div className="space-y-2">
-                        {service.subServices.map((subService, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center gap-2 text-sm text-muted-foreground"
-                          >
-                            <div className="w-1.5 h-1.5 bg-secondary rounded-full" />
-                            <span>{subService}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* Add Service Button */}
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="bg-[#1E40AF] hover:bg-[#1E3A8A] text-white font-semibold py-2.5 px-6 rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap"
+          >
+            <Plus size={20} />
+            Add Service
+          </button>
         </div>
       </div>
+
+      {/* Services Table */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        {/* Table Header */}
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-xl font-bold text-gray-900">All Services</h2>
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Service Name
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Description
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Category
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 bg-white">
+              {filteredServices.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className="px-6 py-8 text-center text-gray-500"
+                  >
+                    No services found.{" "}
+                    {searchTerm ||
+                    categoryFilter !== "all" ||
+                    statusFilter !== "all"
+                      ? "Try adjusting your filters."
+                      : "Create your first service to get started."}
+                  </td>
+                </tr>
+              ) : (
+                filteredServices.map((service) => (
+                  <tr
+                    key={service.id}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        {service.image ? (
+                          <img
+                            src={service.image}
+                            alt={service.title}
+                            className="w-10 h-10 rounded-lg object-cover"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 bg-gradient-to-br from-[#1E40AF] to-[#EA580C] rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                            {service.title.charAt(0)}
+                          </div>
+                        )}
+                        <div>
+                          <div className="font-medium text-gray-900">
+                            {service.title}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {service.category}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-sm text-gray-700 max-w-md line-clamp-2">
+                        {service.description}
+                      </p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        {service.category}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => toggleServiceStatus(service.id)}
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                          service.status === "active"
+                            ? "bg-green-100 text-green-800 hover:bg-green-200"
+                            : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                        }`}
+                      >
+                        {service.status === "active" ? (
+                          <>
+                            <Eye size={12} className="mr-1" />
+                            Active
+                          </>
+                        ) : (
+                          <>
+                            <EyeOff size={12} className="mr-1" />
+                            Inactive
+                          </>
+                        )}
+                      </button>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleEditService(service)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="Edit service"
+                        >
+                          <Edit size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteService(service.id)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Delete service"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Add/Edit Service Modal */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-900">
+                {editingService ? "Edit Service" : "Add New Service"}
+              </h2>
+            </div>
+
+            <form
+              onSubmit={editingService ? handleUpdateService : handleAddService}
+              className="p-6 space-y-6"
+            >
+              {/* Service Title */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Service Title *
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent"
+                  placeholder="Enter service title"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Description *
+                </label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  required
+                  rows={3}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent resize-none"
+                  placeholder="Enter service description"
+                />
+              </div>
+
+              {/* Category and Status */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Category *
+                  </label>
+                  <select
+                    name="category"
+                    value={formData.category}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent"
+                  >
+                    <option value="">Select Category</option>
+                    {categories.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Status
+                  </label>
+                  <select
+                    name="status"
+                    value={formData.status}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent"
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Image Upload */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Service Image
+                </label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#1E40AF] transition-colors cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    id="service-image"
+                  />
+                  <label
+                    htmlFor="service-image"
+                    className="cursor-pointer block"
+                  >
+                    {formData.image ? (
+                      <div className="space-y-2">
+                        <img
+                          src={formData.image}
+                          alt="Preview"
+                          className="w-20 h-20 mx-auto rounded-lg object-cover"
+                        />
+                        <p className="text-sm text-gray-600">
+                          Click to change image
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <Upload className="mx-auto text-gray-400" size={32} />
+                        <p className="text-sm font-medium text-gray-700">
+                          Upload service image
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          PNG, JPG, SVG (Optional)
+                        </p>
+                      </div>
+                    )}
+                  </label>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="submit"
+                  className="flex-1 bg-[#1E40AF] hover:bg-[#1E3A8A] text-white font-semibold py-3 rounded-lg transition-colors"
+                >
+                  {editingService ? "Update Service" : "Add Service"}
+                </button>
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
