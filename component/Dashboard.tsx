@@ -67,12 +67,26 @@ export default function Dashboard() {
 
       {/* Main Content Area */}
       <main className="flex-1 overflow-auto">
-        {/* Mobile Header with Hamburger Menu */}
+        {/* Mobile Header with Company Logo - FULLY RESPONSIVE */}
         <div className="sticky top-0 md:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between z-30 shadow-sm">
-          <h2 className="font-bold text-gray-900 text-lg">KB Admin</h2>
+          {/* Company Logo - Matching Client Design */}
+          <div className="flex items-center gap-3">
+            <img
+              src={"/KhanBrother_Logo.jpeg"}
+              alt="KB Logo"
+              className="h-10 w-10 object-contain rounded-sm"
+            />
+            <div className="flex flex-col">
+              <span className="font-bold text-lg leading-tight text-gray-900 tracking-tight">
+                KHAN BROTHERS
+              </span>
+            </div>
+          </div>
+
+          {/* Hamburger Menu Button - Properly Spaced */}
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
             aria-label="Toggle menu"
           >
             <Menu size={24} className="text-gray-900" />
