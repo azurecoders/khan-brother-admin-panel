@@ -12,10 +12,10 @@ import {
 import { useState, useEffect } from "react";
 import DashboardSidebar from "./DashboardSidebar";
 import Services from "./Services";
+import Products from "./Products";
 import Projects from "./Projects";
 import Testimonials from "./Testimonials";
 import Messages from "./Messages";
-import Products from "./Products";
 
 export default function Dashboard() {
   const [activeLink, setActiveLink] = useState("overview");
@@ -25,8 +25,9 @@ export default function Dashboard() {
   const sidebarLinks = [
     { id: "overview", label: "Overview" },
     { id: "services", label: "Services" },
-    { id: "projects", label: "Projects" },
     { id: "products", label: "Products" },
+    { id: "projects", label: "Projects" },
+
     { id: "testimonials", label: "Testimonials" },
     { id: "messages", label: "Messages" },
     { id: "settings", label: "Settings" },
