@@ -1,5 +1,6 @@
+import ApolloClientProviderComponent from "@/component/ApolloClient";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Poppins } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -23,7 +24,9 @@ export default function RootLayout({
       <body
         className={`${poppins.className} antialiased`}
       >
-        {children}
+        <ApolloClientProviderComponent>
+          {children}
+        </ApolloClientProviderComponent>
       </body>
     </html>
   );
