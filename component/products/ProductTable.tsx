@@ -50,6 +50,9 @@ const ProductTable = ({
                 Product
               </th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                Category
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Description
               </th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
@@ -66,10 +69,10 @@ const ProductTable = ({
           <tbody className="divide-y divide-gray-200 bg-white">
             {products.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
                   No products found.{" "}
                   {searchTerm
-                    ? "Try adjusting your search."
+                    ? "Try adjusting your search or filters."
                     : "Create your first product to get started."}
                 </td>
               </tr>
@@ -98,7 +101,12 @@ const ProductTable = ({
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <p className="text-sm text-gray-700 max-w-md line-clamp-2">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {product.category}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <p className="text-sm text-gray-700 max-w-xs line-clamp-2">
                       {product.description}
                     </p>
                   </td>

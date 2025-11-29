@@ -1,17 +1,17 @@
 "use client";
 
-import { useTestimonials } from "@/hooks/useTestimonials";
-import TestimonialFilters from "./testimonials/TestimonialFilters";
-import TestimonialTable from "./testimonials/TestimonialTable";
-import TestimonialModal from "./testimonials/TestimonialModel";
+import { useAdmins } from "@/hooks/useAdmins";
+import AdminFilters from "./AdminFilters";
+import AdminTable from "./AdminTable";
+import AdminModal from "./AdminModal";
 
-const Testimonials = () => {
+const AdminsContent = () => {
   const {
     searchTerm,
     isModalOpen,
-    editingTestimonial,
+    editingAdmin,
     formData,
-    filteredTestimonials,
+    filteredAdmins,
     loading,
     error,
     mutationLoading,
@@ -21,16 +21,15 @@ const Testimonials = () => {
     handleInputChange,
     handleEdit,
     handleDelete,
+    handleToggleActive,
     handleSubmit,
-  } = useTestimonials();
+  } = useAdmins();
 
   if (error) {
     return (
       <div className="space-y-6 max-w-7xl">
         <div className="bg-red-50 border border-red-200 rounded-xl p-6">
-          <h2 className="text-red-800 font-semibold">
-            Error loading testimonials
-          </h2>
+          <h2 className="text-red-800 font-semibold">Error loading admins</h2>
           <p className="text-red-600 mt-2">{error.message}</p>
         </div>
       </div>
@@ -41,30 +40,31 @@ const Testimonials = () => {
     <div className="space-y-6 max-w-7xl">
       {/* Header */}
       <div>
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">Testimonials</h1>
-        <p className="text-gray-600 text-lg">Manage client testimonials</p>
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">Administrators</h1>
+        <p className="text-gray-600 text-lg">Manage admin accounts</p>
       </div>
 
       {/* Filters */}
-      <TestimonialFilters
+      <AdminFilters
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         onAddClick={openAddModal}
       />
 
       {/* Table */}
-      <TestimonialTable
-        testimonials={filteredTestimonials}
+      <AdminTable
+        admins={filteredAdmins}
         loading={loading}
         searchTerm={searchTerm}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onToggleActive={handleToggleActive}
       />
 
       {/* Modal */}
-      <TestimonialModal
+      <AdminModal
         isOpen={isModalOpen}
-        editingTestimonial={editingTestimonial}
+        editingAdmin={editingAdmin}
         formData={formData}
         loading={mutationLoading}
         onClose={resetForm}
@@ -75,4 +75,4 @@ const Testimonials = () => {
   );
 };
 
-export default Testimonials;
+export default AdminsContent;

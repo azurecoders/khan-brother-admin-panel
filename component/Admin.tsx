@@ -25,7 +25,7 @@ export default function Admin({ children }: AdminProps) {
   const handleLogout = () => {
     localStorage.removeItem("kb-admin-loggedin");
     setIsLoggedIn(false);
-    window.location.href = "/auth";
+    window.location.href = "/login";
   };
 
   // If not logged in → redirect to auth page
@@ -41,16 +41,14 @@ export default function Admin({ children }: AdminProps) {
     <div className="min-h-screen bg-gray-50 flex">
       {/* Desktop Sidebar */}
       <div
-        className={`hidden lg:flex flex-col bg-gradient-to-b from-[#0F172A] to-[#1E293B] text-white transition-all duration-300 ${
-          isSidebarOpen ? "w-64" : "w-20"
-        }`}
+        className={`hidden lg:flex flex-col bg-gradient-to-b from-[#0F172A] to-[#1E293B] text-white transition-all duration-300 ${isSidebarOpen ? "w-64" : "w-20"
+          }`}
       >
         <div className="p-6 border-b border-white/10">
           <div className="flex items-center justify-between">
             <div
-              className={`flex items-center gap-3 ${
-                !isSidebarOpen && "justify-center"
-              }`}
+              className={`flex items-center gap-3 ${!isSidebarOpen && "justify-center"
+                }`}
             >
               <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
                 <span className="text-white font-bold text-xl">KB</span>
@@ -117,9 +115,8 @@ export default function Admin({ children }: AdminProps) {
 
       {/* Mobile Sidebar */}
       <div
-        className={`lg:hidden fixed top-16 left-0 bottom-0 w-72 bg-gradient-to-b from-[#0F172A] to-[#1E293B] text-white z-50 transform transition-transform ${
-          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`lg:hidden fixed top-16 left-0 bottom-0 w-72 bg-gradient-to-b from-[#0F172A] to-[#1E293B] text-white z-50 transform transition-transform ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className="p-4">
           <DashboardSidebar isOpen={true} />

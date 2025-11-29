@@ -2,6 +2,7 @@ import ApolloClientProviderComponent from "@/component/ApolloClient";
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "@/context/AuthContext";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -25,7 +26,9 @@ export default function RootLayout({
         className={`${poppins.className} antialiased`}
       >
         <ApolloClientProviderComponent>
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </ApolloClientProviderComponent>
       </body>
     </html>

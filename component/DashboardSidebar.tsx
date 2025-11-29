@@ -9,6 +9,8 @@ import {
   Package,
   X,
 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { useState } from "react";
 
 interface DashboardSidebarProps {
   links: { id: string; label: string }[];
@@ -25,6 +27,9 @@ const DashboardSidebar = ({
   isSidebarOpen,
   onToggle,
 }: DashboardSidebarProps) => {
+  const { logout, admin } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
   // Icon mapping for each menu item
   const iconMap: Record<string, React.ReactNode> = {
     overview: <LayoutGrid size={20} />,
@@ -33,7 +38,25 @@ const DashboardSidebar = ({
     products: <Package size={20} />,
     testimonials: <Users size={20} />,
     messages: <MessageSquare size={20} />,
+    admins: <Users size={20} />,
     settings: <Settings size={20} />,
+  };
+
+  const handleLogout = async () => {
+    const confirmLogout = window.confirm(
+      "Are you sure you want to logout? You will be redirected to the login page."
+    );
+
+    if (confirmLogout) {
+      try {
+        setIsLoggingOut(true);
+        logout();
+      } catch (error) {
+        console.error("Logout error:", error);
+        alert("An error occurred during logout. Please try again.");
+        setIsLoggingOut(false);
+      }
+    }
   };
 
   return (
@@ -60,9 +83,8 @@ const DashboardSidebar = ({
 
       {/* Sidebar Container - ORIGINAL BLUE THEME */}
       <aside
-        className={`fixed md:static top-0 left-0 h-screen bg-[#1E40AF] transition-transform duration-300 z-50 md:z-auto flex flex-col shadow-xl md:shadow-none ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-        }`}
+        className={`fixed md:static top-0 left-0 h-screen bg-[#1E40AF] transition-transform duration-300 z-50 md:z-auto flex flex-col shadow-xl md:shadow-none ${isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          }`}
         style={{
           width: "15%",
           minWidth: "265px",
@@ -118,6 +140,25 @@ const DashboardSidebar = ({
               </span>
             </div>
           </div>
+
+          {/* Admin Info Display */}
+          {admin && (
+            <div className="mt-4 pt-4 border-t border-white/10">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-semibold text-sm">
+                  {admin.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex flex-col flex-1 min-w-0">
+                  <span className="text-white text-sm font-medium truncate">
+                    {admin.name}
+                  </span>
+                  <span className="text-blue-200 text-xs truncate">
+                    {admin.email}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Navigation Menu - ORIGINAL BLUE THEME */}
@@ -131,11 +172,10 @@ const DashboardSidebar = ({
                   onLinkChange(link.id);
                   onToggle(false); // Close sidebar on mobile after selection
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-lg transition-all duration-200 font-medium ${
-                  isActive
+                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-lg transition-all duration-200 font-medium ${isActive
                     ? "bg-[#F97316] text-white shadow-lg" // ORIGINAL ORANGE ACTIVE STATE
                     : "text-blue-100 hover:bg-[#1E3A8A] hover:text-white" // ORIGINAL HOVER STATE
-                }`}
+                  }`}
                 aria-current={isActive ? "page" : undefined}
               >
                 <span className="flex-shrink-0">{iconMap[link.id]}</span>
@@ -148,18 +188,12 @@ const DashboardSidebar = ({
         {/* Footer with Logout Button - ORIGINAL BLUE THEME */}
         <div className="p-4 border-t border-white/10">
           <button
-            onClick={() => {
-              const confirmLogout = confirm("Are you sure you want to logout?");
-              if (confirmLogout) {
-                alert(
-                  "Logout functionality will be connected to authentication system."
-                );
-              }
-            }}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-[#EF4444] hover:bg-[#DC2626] text-white rounded-lg transition-all duration-200 font-semibold shadow-sm hover:shadow-md"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-[#EF4444] hover:bg-[#DC2626] text-white rounded-lg transition-all duration-200 font-semibold shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <LogOut size={20} />
-            <span>Logout</span>
+            <LogOut size={20} className={isLoggingOut ? "animate-spin" : ""} />
+            <span>{isLoggingOut ? "Logging out..." : "Logout"}</span>
           </button>
 
           {/* Footer Note */}

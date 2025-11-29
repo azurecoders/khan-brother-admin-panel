@@ -5,10 +5,10 @@ import ProductTable from "./products/ProductTable";
 import ProductModal from "./products/ProductModal";
 import ProductFilters from "./products/ProductFilters";
 
-
 const Products = () => {
   const {
     searchTerm,
+    categoryFilter,
     isModalOpen,
     editingProduct,
     formData,
@@ -17,6 +17,7 @@ const Products = () => {
     error,
     mutationLoading,
     setSearchTerm,
+    setCategoryFilter,
     openAddModal,
     resetForm,
     handleInputChange,
@@ -49,7 +50,9 @@ const Products = () => {
       {/* Filters */}
       <ProductFilters
         searchTerm={searchTerm}
+        categoryFilter={categoryFilter}
         onSearchChange={setSearchTerm}
+        onCategoryChange={setCategoryFilter}
         onAddClick={openAddModal}
       />
 

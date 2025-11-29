@@ -1,16 +1,16 @@
 import { Search, Plus } from "lucide-react";
 
-interface TestimonialFiltersProps {
+interface AdminFiltersProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
   onAddClick: () => void;
 }
 
-const TestimonialFilters = ({
+const AdminFilters = ({
   searchTerm,
   onSearchChange,
   onAddClick,
-}: TestimonialFiltersProps) => {
+}: AdminFiltersProps) => {
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
@@ -22,24 +22,24 @@ const TestimonialFilters = ({
           />
           <input
             type="text"
-            placeholder="Search testimonials..."
+            placeholder="Search admins..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent w-full sm:w-64"
           />
         </div>
 
-        {/* Add Testimonial Button */}
+        {/* Add Admin Button */}
         <button
           onClick={onAddClick}
           className="bg-[#1E40AF] hover:bg-[#1E3A8A] text-white font-semibold py-2.5 px-6 rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap"
         >
           <Plus size={20} />
-          Add New
+          Add Admin
         </button>
       </div>
     </div>
   );
 };
 
-export default TestimonialFilters;
+export default AdminFilters;

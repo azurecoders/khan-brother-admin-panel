@@ -14,6 +14,7 @@ import {
 
 export const useProducts = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState<ProductFormData>(
@@ -53,21 +54,35 @@ export const useProducts = () => {
     },
   });
 
+  // Get unique categories from products
+  const availableCategories = useMemo(() => {
+    const products: Product[] = data?.fetchAllProducts || [];
+    const categories = new Set(products.map((p) => p.category));
+    return Array.from(categories).sort();
+  }, [data]);
+
   // Filtered products
   const filteredProducts = useMemo(() => {
     const products: Product[] = data?.fetchAllProducts || [];
-    if (!searchTerm) return products;
 
-    return products.filter(
-      (product) =>
+    return products.filter((product) => {
+      // Search filter
+      const matchesSearch =
         product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [data, searchTerm]);
+        product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchTerm.toLowerCase());
+
+      // Category filter
+      const matchesCategory =
+        categoryFilter === "all" || product.category === categoryFilter;
+
+      return matchesSearch && matchesCategory;
+    });
+  }, [data, searchTerm, categoryFilter]);
 
   // Handlers
   const handleInputChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -90,7 +105,9 @@ export const useProducts = () => {
   const handleRemoveImage = (index: number) => {
     setFormData((prev) => {
       // Revoke the object URL to prevent memory leaks
-      URL.revokeObjectURL(prev.imagePreviews[index]);
+      if (prev.imagePreviews[index]?.startsWith("blob:")) {
+        URL.revokeObjectURL(prev.imagePreviews[index]);
+      }
 
       return {
         ...prev,
@@ -106,8 +123,9 @@ export const useProducts = () => {
       title: product.title,
       description: product.description,
       price: product.price || "",
-      images: [], // No files selected initially
-      imagePreviews: product.images.map((img) => img.imageUrl), // Show existing images
+      category: product.category,
+      images: [],
+      imagePreviews: product.images.map((img) => img.imageUrl),
     });
     setIsModalOpen(true);
   };
@@ -119,6 +137,11 @@ export const useProducts = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!formData.category) {
+      alert("Please select a category");
+      return;
+    }
+
     try {
       if (editingProduct) {
         // Update product
@@ -126,6 +149,7 @@ export const useProducts = () => {
           id: editingProduct.id,
           title: formData.title,
           description: formData.description,
+          category: formData.category,
           price: formData.price || null,
         };
 
@@ -141,6 +165,7 @@ export const useProducts = () => {
           variables: {
             title: formData.title,
             description: formData.description,
+            category: formData.category,
             price: formData.price || null,
             images: formData.images.length > 0 ? formData.images : null,
           },
@@ -172,16 +197,19 @@ export const useProducts = () => {
   return {
     // State
     searchTerm,
+    categoryFilter,
     isModalOpen,
     editingProduct,
     formData,
     filteredProducts,
+    availableCategories,
     loading,
     error,
     mutationLoading: creating || updating,
 
     // Actions
     setSearchTerm,
+    setCategoryFilter,
     openAddModal,
     resetForm,
     handleInputChange,

@@ -7,6 +7,7 @@ export const FETCH_ALL_PRODUCTS = gql`
       title
       description
       price
+      category
       images {
         id
         imageId
@@ -24,6 +25,7 @@ export const FETCH_SINGLE_PRODUCT = gql`
       title
       description
       price
+      category
       images {
         id
         imageId
@@ -38,12 +40,14 @@ export const CREATE_PRODUCT = gql`
   mutation CreateProduct(
     $title: String!
     $description: String!
+    $category: String!
     $price: String
     $images: [Upload!]
   ) {
     createProduct(
       title: $title
       description: $description
+      category: $category
       price: $price
       images: $images
     ) {
@@ -51,6 +55,7 @@ export const CREATE_PRODUCT = gql`
       title
       description
       price
+      category
       images {
         id
         imageId
@@ -66,6 +71,7 @@ export const UPDATE_PRODUCT = gql`
     $id: ID!
     $title: String
     $description: String
+    $category: String
     $price: String
     $images: [Upload!]
   ) {
@@ -73,6 +79,7 @@ export const UPDATE_PRODUCT = gql`
       id: $id
       title: $title
       description: $description
+      category: $category
       price: $price
       images: $images
     ) {
@@ -80,6 +87,7 @@ export const UPDATE_PRODUCT = gql`
       title
       description
       price
+      category
       images {
         id
         imageId

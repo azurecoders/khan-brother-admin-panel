@@ -1,6 +1,6 @@
 import { ChangeEvent } from "react";
 import { Upload, X, Trash2 } from "lucide-react";
-import { Product, ProductFormData } from "@/types/product";
+import { Product, ProductFormData, PRODUCT_CATEGORIES } from "@/types/product";
 
 interface ProductModalProps {
   isOpen: boolean;
@@ -10,7 +10,7 @@ interface ProductModalProps {
   onClose: () => void;
   onSubmit: (e: React.FormEvent) => void;
   onInputChange: (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => void;
   onImagesChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onRemoveImage: (index: number) => void;
@@ -64,6 +64,43 @@ const ProductModal = ({
             />
           </div>
 
+          {/* Category and Price */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Category *
+              </label>
+              <select
+                name="category"
+                value={formData.category}
+                onChange={onInputChange}
+                required
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent"
+              >
+                <option value="">Select Category</option>
+                {PRODUCT_CATEGORIES.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Price
+              </label>
+              <input
+                type="text"
+                name="price"
+                value={formData.price}
+                onChange={onInputChange}
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent"
+                placeholder="e.g., PKR 25,000"
+              />
+            </div>
+          </div>
+
           {/* Description */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -77,21 +114,6 @@ const ProductModal = ({
               rows={3}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent resize-none"
               placeholder="Enter product description"
-            />
-          </div>
-
-          {/* Price */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Price
-            </label>
-            <input
-              type="text"
-              name="price"
-              value={formData.price}
-              onChange={onInputChange}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent"
-              placeholder="e.g., PKR 25,000"
             />
           </div>
 

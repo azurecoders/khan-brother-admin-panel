@@ -10,7 +10,7 @@ interface TestimonialModalProps {
   onClose: () => void;
   onSubmit: (e: React.FormEvent) => void;
   onInputChange: (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
 }
 
@@ -88,47 +88,6 @@ const TestimonialModal = ({
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent resize-none"
               placeholder="Enter client testimonial"
             />
-          </div>
-
-          {/* Rating and Approval Status */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Rating (1-5)
-              </label>
-              <select
-                name="rating"
-                value={formData.rating}
-                onChange={onInputChange}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent"
-              >
-                <option value={5}>⭐⭐⭐⭐⭐ (5 Stars)</option>
-                <option value={4}>⭐⭐⭐⭐ (4 Stars)</option>
-                <option value={3}>⭐⭐⭐ (3 Stars)</option>
-                <option value={2}>⭐⭐ (2 Stars)</option>
-                <option value={1}>⭐ (1 Star)</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Approval Status
-              </label>
-              <div className="flex items-center h-[42px]">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    name="approved"
-                    checked={formData.approved}
-                    onChange={onInputChange}
-                    className="w-5 h-5 text-[#1E40AF] border-gray-300 rounded focus:ring-2 focus:ring-[#1E40AF]"
-                  />
-                  <span className="text-sm text-gray-700 font-medium">
-                    Approve this testimonial
-                  </span>
-                </label>
-              </div>
-            </div>
           </div>
 
           {/* Action Buttons */}

@@ -1,58 +1,24 @@
-import { useState, useMemo, useEffect, useCallback, ChangeEvent } from "react";
+import { useState, useMemo, ChangeEvent } from "react";
 import { useQuery, useMutation } from "@apollo/client/react";
-
-import {
-  Testimonial,
-  TestimonialFormData,
-  TestimonialLocalData,
-  initialTestimonialFormData,
-} from "@/types/testimonial";
 import {
   FETCH_ALL_TESTIMONIALS,
   CREATE_TESTIMONIAL,
   UPDATE_TESTIMONIAL,
   DELETE_TESTIMONIAL,
 } from "@/graphql/testimonials";
-
-const LOCAL_DATA_KEY = "testimonial_local_data";
+import {
+  Testimonial,
+  TestimonialFormData,
+  initialTestimonialFormData,
+} from "@/types/testimonial";
 
 export const useTestimonials = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [approvalFilter, setApprovalFilter] = useState<
-    "all" | "approved" | "pending"
-  >("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTestimonial, setEditingTestimonial] =
     useState<Testimonial | null>(null);
   const [formData, setFormData] = useState<TestimonialFormData>(
     initialTestimonialFormData
-  );
-  const [localData, setLocalData] = useState<TestimonialLocalData>({});
-
-  // Load local data from localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem(LOCAL_DATA_KEY);
-    if (stored) {
-      try {
-        setLocalData(JSON.parse(stored));
-      } catch (e) {
-        console.error("Error parsing local data:", e);
-      }
-    }
-  }, []);
-
-  // Save local data to localStorage
-  const saveLocalData = useCallback((newData: TestimonialLocalData) => {
-    setLocalData(newData);
-    localStorage.setItem(LOCAL_DATA_KEY, JSON.stringify(newData));
-  }, []);
-
-  // Get local data for a testimonial
-  const getLocalData = useCallback(
-    (id: string) => {
-      return localData[id] || { rating: 5, approved: true };
-    },
-    [localData]
   );
 
   // Queries & Mutations
@@ -61,17 +27,7 @@ export const useTestimonials = () => {
   const [createTestimonial, { loading: creating }] = useMutation(
     CREATE_TESTIMONIAL,
     {
-      onCompleted: (data) => {
-        // Save local data for the new testimonial
-        const newId = data.createTestimonial.id;
-        const newLocalData = {
-          ...localData,
-          [newId]: {
-            rating: formData.rating,
-            approved: formData.approved,
-          },
-        };
-        saveLocalData(newLocalData);
+      onCompleted: () => {
         resetForm();
         refetch();
       },
@@ -86,17 +42,6 @@ export const useTestimonials = () => {
     UPDATE_TESTIMONIAL,
     {
       onCompleted: () => {
-        // Update local data
-        if (editingTestimonial) {
-          const newLocalData = {
-            ...localData,
-            [editingTestimonial.id]: {
-              rating: formData.rating,
-              approved: formData.approved,
-            },
-          };
-          saveLocalData(newLocalData);
-        }
         resetForm();
         refetch();
       },
@@ -119,86 +64,38 @@ export const useTestimonials = () => {
   const filteredTestimonials = useMemo(() => {
     const testimonials: Testimonial[] = data?.fetchAllTestimonials || [];
 
-    return testimonials.filter((testimonial) => {
-      const matchesSearch =
+    if (!searchTerm) return testimonials;
+
+    return testimonials.filter(
+      (testimonial) =>
         testimonial.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         testimonial.designation
           .toLowerCase()
           .includes(searchTerm.toLowerCase()) ||
-        testimonial.message.toLowerCase().includes(searchTerm.toLowerCase());
-
-      const testimonialLocalData = getLocalData(testimonial.id);
-      const isApproved = testimonialLocalData.approved;
-      const matchesApproval =
-        approvalFilter === "all" ||
-        (approvalFilter === "approved" && isApproved) ||
-        (approvalFilter === "pending" && !isApproved);
-
-      return matchesSearch && matchesApproval;
-    });
-  }, [data, searchTerm, approvalFilter, getLocalData]);
-
-  // Stats
-  const stats = useMemo(() => {
-    const testimonials: Testimonial[] = data?.fetchAllTestimonials || [];
-    const approved = testimonials.filter(
-      (t) => getLocalData(t.id).approved
-    ).length;
-    return {
-      total: testimonials.length,
-      approved,
-      pending: testimonials.length - approved,
-    };
-  }, [data, getLocalData]);
+        testimonial.message.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [data, searchTerm]);
 
   // Handlers
   const handleInputChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value, type } = e.target;
-
-    if (type === "checkbox") {
-      const checked = (e.target as HTMLInputElement).checked;
-      setFormData((prev) => ({ ...prev, [name]: checked }));
-    } else if (name === "rating") {
-      setFormData((prev) => ({ ...prev, [name]: parseInt(value) }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleEdit = (testimonial: Testimonial) => {
     setEditingTestimonial(testimonial);
-    const testimonialLocalData = getLocalData(testimonial.id);
     setFormData({
       name: testimonial.name,
       designation: testimonial.designation,
       message: testimonial.message,
-      rating: testimonialLocalData.rating,
-      approved: testimonialLocalData.approved,
     });
     setIsModalOpen(true);
   };
 
   const handleDelete = async (id: string) => {
     await deleteTestimonial({ variables: { id } });
-
-    // Remove from local data
-    const newLocalData = { ...localData };
-    delete newLocalData[id];
-    saveLocalData(newLocalData);
-  };
-
-  const toggleApprovalStatus = (id: string) => {
-    const current = getLocalData(id);
-    const newLocalData = {
-      ...localData,
-      [id]: {
-        ...current,
-        approved: !current.approved,
-      },
-    };
-    saveLocalData(newLocalData);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -242,7 +139,6 @@ export const useTestimonials = () => {
   return {
     // State
     searchTerm,
-    approvalFilter,
     isModalOpen,
     editingTestimonial,
     formData,
@@ -250,18 +146,14 @@ export const useTestimonials = () => {
     loading,
     error,
     mutationLoading: creating || updating,
-    stats,
 
     // Actions
     setSearchTerm,
-    setApprovalFilter,
     openAddModal,
     resetForm,
     handleInputChange,
     handleEdit,
     handleDelete,
     handleSubmit,
-    toggleApprovalStatus,
-    getLocalData,
   };
 };
