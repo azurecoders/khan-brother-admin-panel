@@ -7,6 +7,7 @@ import Products from "./Products";
 import Projects from "./Projects";
 import Testimonials from "./Testimonials";
 import Messages from "./Messages";
+import Category from "./Category";
 import { useAuth } from "@/context/AuthContext";
 import OverviewContent from "./OverviewContent";
 import AdminsContent from "./admins/AdminsContent";
@@ -17,9 +18,10 @@ export default function Dashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { admin, logout } = useAuth();
 
-  // Sidebar menu items
+  // Sidebar menu items (with Categories added)
   const sidebarLinks = [
     { id: "overview", label: "Overview" },
+    { id: "categories", label: "Categories" },
     { id: "services", label: "Services" },
     { id: "products", label: "Products" },
     { id: "projects", label: "Projects" },
@@ -40,6 +42,8 @@ export default function Dashboard() {
         return <Projects />;
       case "products":
         return <Products />;
+      case "categories":
+        return <Category />;
       case "testimonials":
         return <Testimonials />;
       case "messages":
@@ -94,7 +98,9 @@ export default function Dashboard() {
         <div className="hidden md:flex sticky top-0 bg-white border-b border-gray-200 px-8 py-4 items-center justify-end z-30 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="text-sm font-semibold text-gray-900">{admin?.name}</p>
+              <p className="text-sm font-semibold text-gray-900">
+                {admin?.name}
+              </p>
               <p className="text-xs text-gray-500">{admin?.email}</p>
             </div>
             <button
