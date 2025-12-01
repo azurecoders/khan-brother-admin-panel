@@ -1,3 +1,4 @@
+// graphql/services.ts
 import { gql } from "@apollo/client";
 
 export const FETCH_ALL_SERVICES = gql`
@@ -36,7 +37,6 @@ export const CREATE_SERVICE = gql`
       subServices {
         id
         name
-        serviceId
       }
     }
   }
@@ -64,7 +64,6 @@ export const UPDATE_SERVICE = gql`
       subServices {
         id
         name
-        serviceId
       }
     }
   }

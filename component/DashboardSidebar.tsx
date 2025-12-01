@@ -1,16 +1,15 @@
+import { useAuth } from "@/context/AuthContext";
 import {
   Briefcase,
+  FileText,
+  Layers,
   LayoutGrid,
   LogOut,
   MessageSquare,
-  Settings,
-  Users,
-  FileText,
   Package,
-  X,
-  Layers,
+  Users,
+  X
 } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
 
 interface DashboardSidebarProps {
@@ -41,7 +40,6 @@ const DashboardSidebar = ({
     testimonials: <Users size={20} />,
     messages: <MessageSquare size={20} />,
     admins: <Users size={20} />,
-    settings: <Settings size={20} />,
   };
 
   const handleLogout = async () => {
@@ -85,9 +83,8 @@ const DashboardSidebar = ({
 
       {/* Sidebar Container - ORIGINAL BLUE THEME */}
       <aside
-        className={`fixed md:static top-0 left-0 h-screen bg-[#1E40AF] transition-transform duration-300 z-50 md:z-auto flex flex-col shadow-xl md:shadow-none ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-        }`}
+        className={`fixed md:static top-0 left-0 h-screen bg-[#1E40AF] transition-transform duration-300 z-50 md:z-auto flex flex-col shadow-xl md:shadow-none ${isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          }`}
         style={{
           width: "15%",
           minWidth: "265px",
@@ -175,11 +172,10 @@ const DashboardSidebar = ({
                   onLinkChange(link.id);
                   onToggle(false); // Close sidebar on mobile after selection
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-lg transition-all duration-200 font-medium ${
-                  isActive
-                    ? "bg-[#F97316] text-white shadow-lg" // ORIGINAL ORANGE ACTIVE STATE
-                    : "text-blue-100 hover:bg-[#1E3A8A] hover:text-white" // ORIGINAL HOVER STATE
-                }`}
+                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-lg transition-all duration-200 font-medium ${isActive
+                  ? "bg-[#F97316] text-white shadow-lg" // ORIGINAL ORANGE ACTIVE STATE
+                  : "text-blue-100 hover:bg-[#1E3A8A] hover:text-white" // ORIGINAL HOVER STATE
+                  }`}
                 aria-current={isActive ? "page" : undefined}
               >
                 <span className="flex-shrink-0">{iconMap[link.id]}</span>

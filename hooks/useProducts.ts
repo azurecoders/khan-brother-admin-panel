@@ -11,6 +11,7 @@ import {
   FETCH_ALL_PRODUCTS,
   UPDATE_PRODUCT,
 } from "@/graphql/product";
+import { FETCH_ALL_CATEGORIES } from "@/graphql/category";
 
 export const useProducts = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -23,6 +24,9 @@ export const useProducts = () => {
 
   // Queries & Mutations
   const { data, loading, error, refetch } = useQuery(FETCH_ALL_PRODUCTS);
+
+  const { data: categoriesData, loading: categoriesLoading } =
+    useQuery(FETCH_ALL_CATEGORIES);
 
   const [createProduct, { loading: creating }] = useMutation(CREATE_PRODUCT, {
     onCompleted: () => {
@@ -54,11 +58,16 @@ export const useProducts = () => {
     },
   });
 
-  // Get unique categories from products
+  // Get categories from backend
+  const categories = useMemo(() => {
+    return categoriesData?.fetchAllCategories || [];
+  }, [categoriesData]);
+
+  // Get unique categories from products (fallback)
   const availableCategories = useMemo(() => {
     const products: Product[] = data?.fetchAllProducts || [];
-    const categories = new Set(products.map((p) => p.category));
-    return Array.from(categories).sort();
+    const productCategories = new Set(products.map((p) => p.category));
+    return Array.from(productCategories).sort();
   }, [data]);
 
   // Filtered products
@@ -203,7 +212,9 @@ export const useProducts = () => {
     formData,
     filteredProducts,
     availableCategories,
+    categories,
     loading,
+    categoriesLoading,
     error,
     mutationLoading: creating || updating,
 

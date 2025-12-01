@@ -10,6 +10,7 @@ import {
   FolderOpen,
   Quote,
   RefreshCw,
+  Tags,
 } from "lucide-react";
 import { useOverview } from "@/hooks/useOverview";
 
@@ -55,6 +56,16 @@ const OverviewContent = () => {
     },
     {
       id: 4,
+      title: "Total Categories",
+      value: stats.totalCategories,
+      icon: <Tags size={24} />,
+      color: "text-[#EF4444]",
+      bgColor: "bg-red-50",
+      iconColor: "text-red-600",
+      trend: "Product categories",
+    },
+    {
+      id: 5,
       title: "Messages",
       value: stats.totalMessages,
       icon: <MessageSquare size={24} />,
@@ -64,7 +75,7 @@ const OverviewContent = () => {
       trend: "Contact inquiries",
     },
     {
-      id: 5,
+      id: 6,
       title: "Testimonials",
       value: stats.totalTestimonials,
       icon: <Quote size={24} />,
@@ -74,7 +85,7 @@ const OverviewContent = () => {
       trend: "Client reviews",
     },
     {
-      id: 6,
+      id: 7,
       title: "Happy Clients",
       value: staticStats.happyClients,
       icon: <Users size={24} />,
@@ -84,7 +95,7 @@ const OverviewContent = () => {
       trend: "Satisfied customers",
     },
     {
-      id: 7,
+      id: 8,
       title: "Years Experience",
       value: staticStats.yearsOfExperience,
       icon: <Calendar size={24} />,
@@ -218,6 +229,24 @@ const OverviewContent = () => {
               </div>
               <span className="text-2xl font-bold text-purple-600">
                 {loading ? "-" : stats.totalProducts}
+              </span>
+            </div>
+
+            {/* Categories Status */}
+            <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                  <Tags size={20} className="text-red-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">
+                    Categories
+                  </p>
+                  <p className="text-xs text-gray-600">Product categories</p>
+                </div>
+              </div>
+              <span className="text-2xl font-bold text-red-600">
+                {loading ? "-" : stats.totalCategories}
               </span>
             </div>
 

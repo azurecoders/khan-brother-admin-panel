@@ -13,6 +13,7 @@ export const useOverview = () => {
     totalProjects: 0,
     totalMessages: 0,
     totalTestimonials: 0,
+    totalCategories: 0,
   };
 
   return {

@@ -96,6 +96,7 @@ const ServiceModal = ({
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Sub Services
+              <span className="text-gray-500 font-normal"> (Optional)</span>
             </label>
             <div className="space-y-3">
               <div className="flex gap-2">

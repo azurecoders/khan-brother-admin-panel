@@ -1,12 +1,19 @@
 import { ChangeEvent } from "react";
 import { Upload, X, Trash2 } from "lucide-react";
-import { Product, ProductFormData, PRODUCT_CATEGORIES } from "@/types/product";
+import { Product, ProductFormData } from "@/types/product";
+
+interface Category {
+  id: string;
+  name: string;
+}
 
 interface ProductModalProps {
   isOpen: boolean;
   editingProduct: Product | null;
   formData: ProductFormData;
   loading: boolean;
+  categories: Category[];
+  categoriesLoading: boolean;
   onClose: () => void;
   onSubmit: (e: React.FormEvent) => void;
   onInputChange: (
@@ -21,6 +28,8 @@ const ProductModal = ({
   editingProduct,
   formData,
   loading,
+  categories,
+  categoriesLoading,
   onClose,
   onSubmit,
   onInputChange,
@@ -75,14 +84,19 @@ const ProductModal = ({
                 value={formData.category}
                 onChange={onInputChange}
                 required
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent"
+                disabled={categoriesLoading}
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <option value="">Select Category</option>
-                {PRODUCT_CATEGORIES.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
+                {categoriesLoading ? (
+                  <option disabled>Loading categories...</option>
+                ) : (
+                  categories && categories?.map((category) => (
+                    <option key={category.id} value={category.name}>
+                      {category.name}
+                    </option>
+                  ))
+                )}
               </select>
             </div>
 

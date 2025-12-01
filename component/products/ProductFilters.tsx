@@ -1,9 +1,15 @@
 import { Search, Plus } from "lucide-react";
-import { PRODUCT_CATEGORIES } from "@/types/product";
+
+interface Category {
+  id: string;
+  name: string;
+}
 
 interface ProductFiltersProps {
   searchTerm: string;
   categoryFilter: string;
+  categories: Category[];
+  categoriesLoading: boolean;
   onSearchChange: (value: string) => void;
   onCategoryChange: (value: string) => void;
   onAddClick: () => void;
@@ -12,6 +18,8 @@ interface ProductFiltersProps {
 const ProductFilters = ({
   searchTerm,
   categoryFilter,
+  categories,
+  categoriesLoading,
   onSearchChange,
   onCategoryChange,
   onAddClick,
@@ -40,14 +48,19 @@ const ProductFilters = ({
           <select
             value={categoryFilter}
             onChange={(e) => onCategoryChange(e.target.value)}
-            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent"
+            disabled={categoriesLoading}
+            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <option value="all">All Categories</option>
-            {PRODUCT_CATEGORIES.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
+            {categoriesLoading ? (
+              <option disabled>Loading categories...</option>
+            ) : (
+              categories && categories?.map((category) => (
+                <option key={category.id} value={category.name}>
+                  {category.name}
+                </option>
+              ))
+            )}
           </select>
         </div>
 

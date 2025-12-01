@@ -13,6 +13,8 @@ const Products = () => {
     editingProduct,
     formData,
     filteredProducts,
+    categories,
+    categoriesLoading,
     loading,
     error,
     mutationLoading,
@@ -51,6 +53,8 @@ const Products = () => {
       <ProductFilters
         searchTerm={searchTerm}
         categoryFilter={categoryFilter}
+        categories={categories}
+        categoriesLoading={categoriesLoading}
         onSearchChange={setSearchTerm}
         onCategoryChange={setCategoryFilter}
         onAddClick={openAddModal}
@@ -71,6 +75,8 @@ const Products = () => {
         editingProduct={editingProduct}
         formData={formData}
         loading={mutationLoading}
+        categories={categories}
+        categoriesLoading={categoriesLoading}
         onClose={resetForm}
         onSubmit={handleSubmit}
         onInputChange={handleInputChange}

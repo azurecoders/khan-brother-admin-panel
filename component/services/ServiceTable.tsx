@@ -98,14 +98,17 @@ const ServiceTable = ({
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex flex-wrap gap-1">
-                      {service.subServices.slice(0, 3).map((sub) => (
-                        <span
-                          key={sub.id}
-                          className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                        >
-                          {sub.name}
-                        </span>
-                      ))}
+                      {service.subServices && service.subServices.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {service.subServices.map((sub) => (
+                            <span key={sub.id} className="px-2 py-1 bg-blue-100 rounded text-sm">
+                              {sub.name}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-gray-400 text-sm italic">No sub-services</p>
+                      )}
                       {service.subServices.length > 3 && (
                         <span className="text-xs text-gray-500">
                           +{service.subServices.length - 3} more

@@ -6,6 +6,7 @@ import {
   useState,
   useEffect,
   ReactNode,
+  useCallback,
 } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useLazyQuery } from "@apollo/client/react";
@@ -38,40 +39,89 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     fetchPolicy: "network-only",
   });
 
-  // Initialize auth state from localStorage
+  const logout = useCallback((reason?: string) => {
+    console.log("🚪 Logout called, reason:", reason);
+    setToken(null);
+    setAdmin(null);
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(ADMIN_KEY);
+    router.push("/login");
+  }, [router]);
+
   useEffect(() => {
     const initAuth = async () => {
+      console.log("🔄 initAuth starting...");
+
       try {
         const storedToken = localStorage.getItem(TOKEN_KEY);
         const storedAdmin = localStorage.getItem(ADMIN_KEY);
 
-        if (storedToken && storedAdmin) {
-          setToken(storedToken);
-          setAdmin(JSON.parse(storedAdmin));
+        console.log("📦 Stored token exists:", !!storedToken);
+        console.log("📦 Stored admin exists:", !!storedAdmin);
 
-          // Verify token is still valid
-          const { data } = await fetchCurrentAdmin();
-          if (data?.fetchCurrentAdmin) {
-            setAdmin(data.fetchCurrentAdmin);
-            localStorage.setItem(
-              ADMIN_KEY,
-              JSON.stringify(data.fetchCurrentAdmin)
+        if (!storedToken || !storedAdmin) {
+          console.log("❌ No stored credentials, finishing load");
+          setIsLoading(false);
+          return;
+        }
+
+        // Set state from localStorage immediately
+        setToken(storedToken);
+        setAdmin(JSON.parse(storedAdmin));
+
+        console.log("🔍 Verifying token with server...");
+
+        // Verify token is still valid
+        const result = await fetchCurrentAdmin();
+
+        console.log("📡 Server response:", {
+          data: result.data,
+          error: result.error,
+          loading: result.loading,
+        });
+
+        if (result.error) {
+          console.error("❌ GraphQL error:", result.error.message);
+
+          // Check if it's an auth error (adjust based on your API)
+          const isAuthError =
+            result.error.message.includes("unauthorized") ||
+            result.error.message.includes("Unauthorized") ||
+            result.error.message.includes("jwt") ||
+            result.error.message.includes("token") ||
+            result.error.graphQLErrors?.some(
+              (e) => e.extensions?.code === "UNAUTHENTICATED"
             );
-          } else {
-            // Token is invalid, clear auth
-            logout();
+
+          if (isAuthError) {
+            logout("Token verification failed - auth error");
+            return;
           }
+
+          // For non-auth errors (network issues, etc.), keep user logged in
+          console.log("⚠️ Non-auth error, keeping user logged in");
+        } else if (result.data?.fetchCurrentAdmin) {
+          console.log("✅ Token verified, updating admin data");
+          setAdmin(result.data.fetchCurrentAdmin);
+          localStorage.setItem(
+            ADMIN_KEY,
+            JSON.stringify(result.data.fetchCurrentAdmin)
+          );
+        } else {
+          console.log("⚠️ No data returned, but no error - keeping stored data");
+          // Don't logout here - might be a temporary issue
         }
       } catch (error) {
-        console.error("Auth initialization error:", error);
-        logout();
+        console.error("💥 Unexpected error in initAuth:", error);
+        // Don't logout on unexpected errors - keep user logged in
       } finally {
+        console.log("✅ initAuth complete, setting isLoading to false");
         setIsLoading(false);
       }
     };
 
     initAuth();
-  }, []);
+  }, [fetchCurrentAdmin, logout]);
 
   const login = async (email: string, password: string) => {
     try {
@@ -82,25 +132,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (data?.loginAdmin) {
         const { token: newToken, admin: newAdmin } = data.loginAdmin;
 
-        setToken(newToken);
-        setAdmin(newAdmin);
-
         localStorage.setItem(TOKEN_KEY, newToken);
         localStorage.setItem(ADMIN_KEY, JSON.stringify(newAdmin));
+
+        setToken(newToken);
+        setAdmin(newAdmin);
 
         router.push("/");
       }
     } catch (error: any) {
       throw new Error(error.message || "Login failed");
     }
-  };
-
-  const logout = () => {
-    setToken(null);
-    setAdmin(null);
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(ADMIN_KEY);
-    router.push("/login");
   };
 
   const refreshAdmin = async () => {
@@ -123,7 +165,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isLoading,
         isAuthenticated: !!token && !!admin,
         login,
-        logout,
+        logout: () => logout("Manual logout"),
         refreshAdmin,
       }}
     >
