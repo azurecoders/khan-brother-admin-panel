@@ -69,7 +69,7 @@ const TestimonialModal = ({
                 onChange={onInputChange}
                 required
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent"
-                placeholder="Enter company or designation"
+                placeholder="Google - Web Developer"
               />
             </div>
           </div>
