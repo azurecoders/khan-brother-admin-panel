@@ -1,3 +1,4 @@
+// components/projects/ProjectTable.tsx
 import { Edit, Trash2, MapPin, FolderOpen } from "lucide-react";
 import { Project } from "@/types/project";
 
@@ -50,6 +51,9 @@ const ProjectTable = ({
                 Project
               </th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                Category
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Description
               </th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
@@ -63,10 +67,10 @@ const ProjectTable = ({
           <tbody className="divide-y divide-gray-200 bg-white">
             {projects.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
+                <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
                   No projects found.{" "}
                   {searchTerm
-                    ? "Try adjusting your search."
+                    ? "Try adjusting your search or filters."
                     : "Create your first project to get started."}
                 </td>
               </tr>
@@ -93,6 +97,11 @@ const ProjectTable = ({
                         {project.title}
                       </span>
                     </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {project.category || "Uncategorized"}
+                    </span>
                   </td>
                   <td className="px-6 py-4">
                     <p className="text-sm text-gray-700 max-w-md line-clamp-2">

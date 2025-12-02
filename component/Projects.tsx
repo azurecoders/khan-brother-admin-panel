@@ -1,3 +1,4 @@
+// components/Projects.tsx
 "use client";
 
 import { useProjects } from "@/hooks/useProjects";
@@ -8,14 +9,18 @@ import ProjectModal from "./projects/ProjectModal";
 const Projects = () => {
   const {
     searchTerm,
+    categoryFilter,
     isModalOpen,
     editingProject,
     formData,
     filteredProjects,
+    categories,
+    categoriesLoading,
     loading,
     error,
     mutationLoading,
     setSearchTerm,
+    setCategoryFilter,
     openAddModal,
     resetForm,
     handleInputChange,
@@ -47,7 +52,11 @@ const Projects = () => {
       {/* Filters */}
       <ProjectFilters
         searchTerm={searchTerm}
+        categoryFilter={categoryFilter}
+        categories={categories}
+        categoriesLoading={categoriesLoading}
         onSearchChange={setSearchTerm}
+        onCategoryChange={setCategoryFilter}
         onAddClick={openAddModal}
       />
 
@@ -66,6 +75,8 @@ const Projects = () => {
         editingProject={editingProject}
         formData={formData}
         loading={mutationLoading}
+        categories={categories}
+        categoriesLoading={categoriesLoading}
         onClose={resetForm}
         onSubmit={handleSubmit}
         onInputChange={handleInputChange}

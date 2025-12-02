@@ -1,3 +1,4 @@
+// hooks/useServices.ts
 import { useState, useMemo, ChangeEvent } from "react";
 import { useQuery, useMutation } from "@apollo/client/react";
 import {
@@ -6,16 +7,21 @@ import {
   UPDATE_SERVICE,
   DELETE_SERVICE,
 } from "@/graphql/services";
+import { FETCH_ALL_CATEGORIES } from "@/graphql/category";
 import { Service, ServiceFormData, initialFormData } from "@/types/service";
 
 export const useServices = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [formData, setFormData] = useState<ServiceFormData>(initialFormData);
 
   // Queries & Mutations
   const { data, loading, error, refetch } = useQuery(FETCH_ALL_SERVICES);
+
+  const { data: categoriesData, loading: categoriesLoading } =
+    useQuery(FETCH_ALL_CATEGORIES);
 
   const [createService, { loading: creating }] = useMutation(CREATE_SERVICE, {
     onCompleted: () => {
@@ -47,21 +53,43 @@ export const useServices = () => {
     },
   });
 
+  // Get categories from backend
+  const categories = useMemo(() => {
+    return categoriesData?.fetchAllCategories || [];
+  }, [categoriesData]);
+
+  // Get unique categories from services (fallback)
+  const availableCategories = useMemo(() => {
+    const services: Service[] = data?.fetchAllServices || [];
+    const serviceCategories = new Set(
+      services.map((s) => s.category).filter(Boolean)
+    );
+    return Array.from(serviceCategories).sort();
+  }, [data]);
+
   // Filtered services
   const filteredServices = useMemo(() => {
     const services: Service[] = data?.fetchAllServices || [];
-    if (!searchTerm) return services;
 
-    return services.filter(
-      (service) =>
+    return services.filter((service) => {
+      // Search filter
+      const matchesSearch =
         service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        service.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [data, searchTerm]);
+        service.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (service.category &&
+          service.category.toLowerCase().includes(searchTerm.toLowerCase()));
+
+      // Category filter
+      const matchesCategory =
+        categoryFilter === "all" || service.category === categoryFilter;
+
+      return matchesSearch && matchesCategory;
+    });
+  }, [data, searchTerm, categoryFilter]);
 
   // Handlers
   const handleInputChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -99,8 +127,9 @@ export const useServices = () => {
     setFormData({
       name: service.name,
       description: service.description,
-      icon: null, // No file selected initially
-      iconPreview: service.icon, // Show existing icon
+      category: service.category || "",
+      icon: null,
+      iconPreview: service.icon,
       subServices: service.subServices.map((s) => s.name),
     });
     setIsModalOpen(true);
@@ -113,35 +142,38 @@ export const useServices = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // For create: icon is required
-    // For update: icon is optional
+    // Validation
     if (!formData.icon && !editingService) {
       alert("Please upload an icon");
       return;
     }
 
+    if (!formData.category) {
+      alert("Please select a category");
+      return;
+    }
+
     try {
       if (editingService) {
-        // Update: only include icon if a new one was selected
         const variables: Record<string, any> = {
           id: editingService.id,
           name: formData.name,
           description: formData.description,
+          category: formData.category,
           subServices: formData.subServices,
         };
 
-        // Only include icon if user selected a new file
         if (formData.icon) {
           variables.icon = formData.icon;
         }
 
         await updateService({ variables });
       } else {
-        // Create: icon is required
         await createService({
           variables: {
             name: formData.name,
             description: formData.description,
+            category: formData.category,
             icon: formData.icon,
             subServices: formData.subServices,
           },
@@ -153,6 +185,10 @@ export const useServices = () => {
   };
 
   const resetForm = () => {
+    // Clean up object URL if exists
+    if (formData.iconPreview?.startsWith("blob:")) {
+      URL.revokeObjectURL(formData.iconPreview);
+    }
     setFormData(initialFormData);
     setEditingService(null);
     setIsModalOpen(false);
@@ -166,16 +202,21 @@ export const useServices = () => {
   return {
     // State
     searchTerm,
+    categoryFilter,
     isModalOpen,
     editingService,
     formData,
     filteredServices,
+    availableCategories,
+    categories,
+    categoriesLoading,
     loading,
     error,
     mutationLoading: creating || updating,
 
     // Actions
     setSearchTerm,
+    setCategoryFilter,
     openAddModal,
     resetForm,
     handleInputChange,

@@ -7,11 +7,11 @@ export const FETCH_ALL_SERVICES = gql`
       id
       name
       description
+      category
       icon
       subServices {
         id
         name
-        serviceId
       }
     }
   }
@@ -21,18 +21,21 @@ export const CREATE_SERVICE = gql`
   mutation CreateService(
     $name: String!
     $description: String!
+    $category: String!
     $icon: Upload!
     $subServices: [String!]
   ) {
     createService(
       name: $name
       description: $description
+      category: $category
       icon: $icon
       subServices: $subServices
     ) {
       id
       name
       description
+      category
       icon
       subServices {
         id
@@ -47,6 +50,7 @@ export const UPDATE_SERVICE = gql`
     $id: ID!
     $name: String
     $description: String
+    $category: String
     $icon: Upload
     $subServices: [String!]
   ) {
@@ -54,12 +58,14 @@ export const UPDATE_SERVICE = gql`
       id: $id
       name: $name
       description: $description
+      category: $category
       icon: $icon
       subServices: $subServices
     ) {
       id
       name
       description
+      category
       icon
       subServices {
         id
@@ -71,6 +77,8 @@ export const UPDATE_SERVICE = gql`
 
 export const DELETE_SERVICE = gql`
   mutation DeleteService($id: ID!) {
-    deleteService(id: $id)
+    deleteService(id: $id) {
+      id
+    }
   }
 `;

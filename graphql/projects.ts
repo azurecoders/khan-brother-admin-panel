@@ -1,3 +1,4 @@
+// graphql/projects.ts
 import { gql } from "@apollo/client";
 
 export const FETCH_ALL_PROJECTS = gql`
@@ -7,8 +8,8 @@ export const FETCH_ALL_PROJECTS = gql`
       title
       description
       location
+      category
       imageUrl
-      imageId
     }
   }
 `;
@@ -20,8 +21,10 @@ export const FETCH_SINGLE_PROJECT = gql`
       title
       description
       location
+      category
       imageUrl
-      imageId
+      createdAt
+      updatedAt
     }
   }
 `;
@@ -31,20 +34,22 @@ export const CREATE_PROJECT = gql`
     $title: String!
     $description: String!
     $location: String!
+    $category: String!
     $image: Upload!
   ) {
     createProject(
       title: $title
       description: $description
       location: $location
+      category: $category
       image: $image
     ) {
       id
       title
       description
       location
+      category
       imageUrl
-      imageId
     }
   }
 `;
@@ -55,6 +60,7 @@ export const UPDATE_PROJECT = gql`
     $title: String
     $description: String
     $location: String
+    $category: String
     $image: Upload
   ) {
     updateProject(
@@ -62,14 +68,15 @@ export const UPDATE_PROJECT = gql`
       title: $title
       description: $description
       location: $location
+      category: $category
       image: $image
     ) {
       id
       title
       description
       location
+      category
       imageUrl
-      imageId
     }
   }
 `;

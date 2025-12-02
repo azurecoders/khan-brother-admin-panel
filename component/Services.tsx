@@ -1,3 +1,4 @@
+// components/Services.tsx
 "use client";
 
 import { useServices } from "@/hooks/useServices";
@@ -8,14 +9,18 @@ import ServiceModal from "./services/ServiceModal";
 const Services = () => {
   const {
     searchTerm,
+    categoryFilter,
     isModalOpen,
     editingService,
     formData,
     filteredServices,
+    categories,
+    categoriesLoading,
     loading,
     error,
     mutationLoading,
     setSearchTerm,
+    setCategoryFilter,
     openAddModal,
     resetForm,
     handleInputChange,
@@ -49,7 +54,11 @@ const Services = () => {
       {/* Filters */}
       <ServiceFilters
         searchTerm={searchTerm}
+        categoryFilter={categoryFilter}
+        categories={categories}
+        categoriesLoading={categoriesLoading}
         onSearchChange={setSearchTerm}
+        onCategoryChange={setCategoryFilter}
         onAddClick={openAddModal}
       />
 
@@ -68,6 +77,8 @@ const Services = () => {
         editingService={editingService}
         formData={formData}
         loading={mutationLoading}
+        categories={categories}
+        categoriesLoading={categoriesLoading}
         onClose={resetForm}
         onSubmit={handleSubmit}
         onInputChange={handleInputChange}

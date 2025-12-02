@@ -1,3 +1,4 @@
+// components/services/ServiceTable.tsx
 import { Edit, Trash2 } from "lucide-react";
 import { Service } from "@/types/service";
 
@@ -37,6 +38,9 @@ const ServiceTable = ({
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-200">
         <h2 className="text-xl font-bold text-gray-900">All Services</h2>
+        <p className="text-sm text-gray-600 mt-1">
+          Total Services: {services.length}
+        </p>
       </div>
 
       <div className="overflow-x-auto">
@@ -45,6 +49,9 @@ const ServiceTable = ({
             <tr>
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Service
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                Category
               </th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Description
@@ -60,10 +67,10 @@ const ServiceTable = ({
           <tbody className="divide-y divide-gray-200 bg-white">
             {services.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
+                <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
                   No services found.{" "}
                   {searchTerm
-                    ? "Try adjusting your search."
+                    ? "Try adjusting your search or filters."
                     : "Create your first service to get started."}
                 </td>
               </tr>
@@ -92,6 +99,11 @@ const ServiceTable = ({
                     </div>
                   </td>
                   <td className="px-6 py-4">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {service.category || "Uncategorized"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
                     <p className="text-sm text-gray-700 max-w-md line-clamp-2">
                       {service.description}
                     </p>
@@ -100,19 +112,24 @@ const ServiceTable = ({
                     <div className="flex flex-wrap gap-1">
                       {service.subServices && service.subServices.length > 0 ? (
                         <div className="flex flex-wrap gap-2">
-                          {service.subServices.map((sub) => (
-                            <span key={sub.id} className="px-2 py-1 bg-blue-100 rounded text-sm">
+                          {service.subServices.slice(0, 3).map((sub) => (
+                            <span
+                              key={sub.id}
+                              className="px-2 py-1 bg-blue-100 rounded text-sm"
+                            >
                               {sub.name}
                             </span>
                           ))}
+                          {service.subServices.length > 3 && (
+                            <span className="text-xs text-gray-500 self-center">
+                              +{service.subServices.length - 3} more
+                            </span>
+                          )}
                         </div>
                       ) : (
-                        <p className="text-gray-400 text-sm italic">No sub-services</p>
-                      )}
-                      {service.subServices.length > 3 && (
-                        <span className="text-xs text-gray-500">
-                          +{service.subServices.length - 3} more
-                        </span>
+                        <p className="text-gray-400 text-sm italic">
+                          No sub-services
+                        </p>
                       )}
                     </div>
                   </td>
