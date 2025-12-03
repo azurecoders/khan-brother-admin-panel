@@ -1,3 +1,4 @@
+// hooks/useProducts.ts
 import { useState, useMemo, ChangeEvent } from "react";
 import { useQuery, useMutation } from "@apollo/client/react";
 import {
@@ -63,25 +64,16 @@ export const useProducts = () => {
     return categoriesData?.fetchAllCategories || [];
   }, [categoriesData]);
 
-  // Get unique categories from products (fallback)
-  const availableCategories = useMemo(() => {
-    const products: Product[] = data?.fetchAllProducts || [];
-    const productCategories = new Set(products.map((p) => p.category));
-    return Array.from(productCategories).sort();
-  }, [data]);
-
   // Filtered products
   const filteredProducts = useMemo(() => {
     const products: Product[] = data?.fetchAllProducts || [];
 
     return products.filter((product) => {
-      // Search filter
       const matchesSearch =
         product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.category.toLowerCase().includes(searchTerm.toLowerCase());
 
-      // Category filter
       const matchesCategory =
         categoryFilter === "all" || product.category === categoryFilter;
 
@@ -97,6 +89,7 @@ export const useProducts = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handle file uploads
   const handleImagesChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
@@ -111,36 +104,91 @@ export const useProducts = () => {
     }
   };
 
+  // NEW: Handle URL input
+  const handleImageUrlAdd = (url: string) => {
+    if (!url.trim()) return;
+
+    try {
+      new URL(url); // Validate URL
+      setFormData((prev) => ({
+        ...prev,
+        imageUrls: [...prev.imageUrls, url.trim()],
+        imagePreviews: [...prev.imagePreviews, url.trim()],
+      }));
+    } catch {
+      alert("Please enter a valid URL");
+    }
+  };
+
+  // NEW: Handle input type toggle
+  const handleImageInputTypeChange = (type: "file" | "url") => {
+    setFormData((prev) => ({
+      ...prev,
+      imageInputType: type,
+    }));
+  };
+
+  // Handle remove image (works for both file and URL)
   const handleRemoveImage = (index: number) => {
     setFormData((prev) => {
-      // Revoke the object URL to prevent memory leaks
-      if (prev.imagePreviews[index]?.startsWith("blob:")) {
-        URL.revokeObjectURL(prev.imagePreviews[index]);
-      }
+      const preview = prev.imagePreviews[index];
 
-      return {
-        ...prev,
-        images: prev.images.filter((_, i) => i !== index),
-        imagePreviews: prev.imagePreviews.filter((_, i) => i !== index),
-      };
+      // Check if it's a blob URL (file upload)
+      if (preview?.startsWith("blob:")) {
+        URL.revokeObjectURL(preview);
+
+        // Find the corresponding file index
+        const blobPreviews = prev.imagePreviews
+          .slice(0, index + 1)
+          .filter((p) => p.startsWith("blob:"));
+        const fileIndex = blobPreviews.length - 1;
+
+        return {
+          ...prev,
+          images: prev.images.filter((_, i) => i !== fileIndex),
+          imagePreviews: prev.imagePreviews.filter((_, i) => i !== index),
+        };
+      } else {
+        // It's a URL
+        const urlPreviews = prev.imagePreviews
+          .slice(0, index + 1)
+          .filter((p) => !p.startsWith("blob:"));
+        const urlIndex = urlPreviews.length - 1;
+
+        return {
+          ...prev,
+          imageUrls: prev.imageUrls.filter((_, i) => i !== urlIndex),
+          imagePreviews: prev.imagePreviews.filter((_, i) => i !== index),
+        };
+      }
     });
   };
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
+
+    // Check if images are external URLs or from ImageKit
+    const existingUrls = product.images
+      .filter((img) => !img.imageId) // External URLs have no imageId
+      .map((img) => img.imageUrl);
+
     setFormData({
       title: product.title,
       description: product.description,
       price: product.price || "",
       category: product.category,
       images: [],
+      imageUrls: existingUrls,
       imagePreviews: product.images.map((img) => img.imageUrl),
+      imageInputType: "file",
     });
     setIsModalOpen(true);
   };
 
   const handleDelete = async (id: string) => {
-    await deleteProduct({ variables: { id } });
+    if (confirm("Are you sure you want to delete this product?")) {
+      await deleteProduct({ variables: { id } });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -153,7 +201,6 @@ export const useProducts = () => {
 
     try {
       if (editingProduct) {
-        // Update product
         const variables: Record<string, any> = {
           id: editingProduct.id,
           title: formData.title,
@@ -162,23 +209,36 @@ export const useProducts = () => {
           price: formData.price || null,
         };
 
-        // Only include images if new ones were selected
+        // Add file uploads if any
         if (formData.images.length > 0) {
           variables.images = formData.images;
         }
 
+        // Add URL images if any
+        if (formData.imageUrls.length > 0) {
+          variables.imageUrls = formData.imageUrls;
+        }
+
         await updateProduct({ variables });
       } else {
-        // Create product
-        await createProduct({
-          variables: {
-            title: formData.title,
-            description: formData.description,
-            category: formData.category,
-            price: formData.price || null,
-            images: formData.images.length > 0 ? formData.images : null,
-          },
-        });
+        const variables: Record<string, any> = {
+          title: formData.title,
+          description: formData.description,
+          category: formData.category,
+          price: formData.price || null,
+        };
+
+        // Add file uploads if any
+        if (formData.images.length > 0) {
+          variables.images = formData.images;
+        }
+
+        // Add URL images if any
+        if (formData.imageUrls.length > 0) {
+          variables.imageUrls = formData.imageUrls;
+        }
+
+        await createProduct({ variables });
       }
     } catch (error) {
       console.error("Submit error:", error);
@@ -211,7 +271,6 @@ export const useProducts = () => {
     editingProduct,
     formData,
     filteredProducts,
-    availableCategories,
     categories,
     loading,
     categoriesLoading,
@@ -225,6 +284,8 @@ export const useProducts = () => {
     resetForm,
     handleInputChange,
     handleImagesChange,
+    handleImageUrlAdd, // NEW
+    handleImageInputTypeChange, // NEW
     handleRemoveImage,
     handleEdit,
     handleDelete,

@@ -1,6 +1,6 @@
 // components/services/ServiceModal.tsx
 import { ChangeEvent } from "react";
-import { Upload, X, Plus } from "lucide-react";
+import { Upload, X, Plus, Link, ImageIcon } from "lucide-react";
 import { Service, ServiceFormData } from "@/types/service";
 
 interface Category {
@@ -21,6 +21,8 @@ interface ServiceModalProps {
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => void;
   onImageChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onIconUrlChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onIconInputTypeChange: (type: 'file' | 'url') => void;
   onAddSubService: (value: string) => void;
   onRemoveSubService: (index: number) => void;
 }
@@ -36,6 +38,8 @@ const ServiceModal = ({
   onSubmit,
   onInputChange,
   onImageChange,
+  onIconUrlChange,
+  onIconInputTypeChange,
   onAddSubService,
   onRemoveSubService,
 }: ServiceModalProps) => {
@@ -182,7 +186,7 @@ const ServiceModal = ({
             </div>
           </div>
 
-          {/* Image Upload */}
+          {/* Image Upload / URL Section */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Service Icon {!editingService && "*"}
@@ -193,39 +197,127 @@ const ServiceModal = ({
                 </span>
               )}
             </label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#1E40AF] transition-colors cursor-pointer">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={onImageChange}
-                className="hidden"
-                id="service-icon"
-              />
-              <label htmlFor="service-icon" className="cursor-pointer block">
-                {formData.iconPreview ? (
-                  <div className="space-y-2">
-                    <img
-                      src={formData.iconPreview}
-                      alt="Preview"
-                      className="w-20 h-20 mx-auto rounded-lg object-cover"
-                    />
-                    <p className="text-sm text-gray-600">
-                      {formData.icon
-                        ? "New icon selected - Click to change"
-                        : "Current icon - Click to change"}
-                    </p>
+
+            {/* Toggle Buttons */}
+            <div className="flex gap-2 mb-4">
+              <button
+                type="button"
+                onClick={() => onIconInputTypeChange('file')}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border-2 transition-colors ${formData.iconInputType === 'file'
+                    ? 'border-[#1E40AF] bg-blue-50 text-[#1E40AF]'
+                    : 'border-gray-300 hover:border-gray-400 text-gray-600'
+                  }`}
+              >
+                <ImageIcon size={18} />
+                Upload File
+              </button>
+              <button
+                type="button"
+                onClick={() => onIconInputTypeChange('url')}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border-2 transition-colors ${formData.iconInputType === 'url'
+                    ? 'border-[#1E40AF] bg-blue-50 text-[#1E40AF]'
+                    : 'border-gray-300 hover:border-gray-400 text-gray-600'
+                  }`}
+              >
+                <Link size={18} />
+                Enter URL
+              </button>
+            </div>
+
+            {/* File Upload Section */}
+            {formData.iconInputType === 'file' && (
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#1E40AF] transition-colors cursor-pointer">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={onImageChange}
+                  className="hidden"
+                  id="service-icon"
+                />
+                <label htmlFor="service-icon" className="cursor-pointer block">
+                  {formData.iconPreview && formData.icon ? (
+                    <div className="space-y-2">
+                      <img
+                        src={formData.iconPreview}
+                        alt="Preview"
+                        className="w-20 h-20 mx-auto rounded-lg object-cover"
+                      />
+                      <p className="text-sm text-gray-600">
+                        New icon selected - Click to change
+                      </p>
+                    </div>
+                  ) : formData.iconPreview && !formData.icon && editingService ? (
+                    <div className="space-y-2">
+                      <img
+                        src={formData.iconPreview}
+                        alt="Preview"
+                        className="w-20 h-20 mx-auto rounded-lg object-cover"
+                      />
+                      <p className="text-sm text-gray-600">
+                        Current icon - Click to change
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Upload className="mx-auto text-gray-400" size={32} />
+                      <p className="text-sm font-medium text-gray-700">
+                        Upload service icon
+                      </p>
+                      <p className="text-xs text-gray-500">PNG, JPG, SVG</p>
+                    </div>
+                  )}
+                </label>
+              </div>
+            )}
+
+            {/* URL Input Section */}
+            {formData.iconInputType === 'url' && (
+              <div className="space-y-4">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Link size={18} className="text-gray-400" />
                   </div>
-                ) : (
-                  <div className="space-y-2">
-                    <Upload className="mx-auto text-gray-400" size={32} />
-                    <p className="text-sm font-medium text-gray-700">
-                      Upload service icon
-                    </p>
-                    <p className="text-xs text-gray-500">PNG, JPG, SVG</p>
+                  <input
+                    type="url"
+                    value={formData.iconUrl}
+                    onChange={onIconUrlChange}
+                    placeholder="https://example.com/icon.png"
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent"
+                  />
+                </div>
+
+                {/* URL Preview */}
+                {formData.iconUrl && (
+                  <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                    <p className="text-sm text-gray-600 mb-2">Preview:</p>
+                    <div className="flex items-center gap-4">
+                      <img
+                        src={formData.iconUrl}
+                        alt="Icon preview"
+                        className="w-16 h-16 rounded-lg object-cover border border-gray-200"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                          const errorText = e.currentTarget.nextElementSibling;
+                          if (errorText) {
+                            errorText.classList.remove('hidden');
+                          }
+                        }}
+                        onLoad={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'block';
+                          const errorText = e.currentTarget.nextElementSibling;
+                          if (errorText) {
+                            errorText.classList.add('hidden');
+                          }
+                        }}
+                      />
+                      <p className="hidden text-sm text-red-500">
+                        Unable to load image. Please check the URL.
+                      </p>
+                    </div>
                   </div>
                 )}
-              </label>
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Action Buttons */}

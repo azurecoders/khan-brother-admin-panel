@@ -22,7 +22,8 @@ export const CREATE_SERVICE = gql`
     $name: String!
     $description: String!
     $category: String!
-    $icon: Upload!
+    $icon: Upload
+    $iconUrl: String
     $subServices: [String!]
   ) {
     createService(
@@ -30,6 +31,7 @@ export const CREATE_SERVICE = gql`
       description: $description
       category: $category
       icon: $icon
+      iconUrl: $iconUrl
       subServices: $subServices
     ) {
       id
@@ -52,6 +54,7 @@ export const UPDATE_SERVICE = gql`
     $description: String
     $category: String
     $icon: Upload
+    $iconUrl: String
     $subServices: [String!]
   ) {
     updateService(
@@ -60,6 +63,7 @@ export const UPDATE_SERVICE = gql`
       description: $description
       category: $category
       icon: $icon
+      iconUrl: $iconUrl
       subServices: $subServices
     ) {
       id

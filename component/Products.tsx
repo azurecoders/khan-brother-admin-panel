@@ -1,3 +1,4 @@
+// components/Products.tsx
 "use client";
 
 import { useProducts } from "@/hooks/useProducts";
@@ -24,6 +25,8 @@ const Products = () => {
     resetForm,
     handleInputChange,
     handleImagesChange,
+    handleImageUrlAdd,            // NEW
+    handleImageInputTypeChange,   // NEW
     handleRemoveImage,
     handleEdit,
     handleDelete,
@@ -43,13 +46,11 @@ const Products = () => {
 
   return (
     <div className="space-y-6 max-w-7xl">
-      {/* Header */}
       <div>
         <h1 className="text-4xl font-bold text-gray-900 mb-2">Products</h1>
         <p className="text-gray-600 text-lg">Manage your product catalog</p>
       </div>
 
-      {/* Filters */}
       <ProductFilters
         searchTerm={searchTerm}
         categoryFilter={categoryFilter}
@@ -60,7 +61,6 @@ const Products = () => {
         onAddClick={openAddModal}
       />
 
-      {/* Table */}
       <ProductTable
         products={filteredProducts}
         loading={loading}
@@ -69,7 +69,6 @@ const Products = () => {
         onDelete={handleDelete}
       />
 
-      {/* Modal */}
       <ProductModal
         isOpen={isModalOpen}
         editingProduct={editingProduct}
@@ -81,6 +80,8 @@ const Products = () => {
         onSubmit={handleSubmit}
         onInputChange={handleInputChange}
         onImagesChange={handleImagesChange}
+        onImageUrlAdd={handleImageUrlAdd}               // NEW
+        onImageInputTypeChange={handleImageInputTypeChange} // NEW
         onRemoveImage={handleRemoveImage}
       />
     </div>

@@ -1,6 +1,7 @@
+// types/product.ts
 export interface ProductImage {
   id: string;
-  imageId: string;
+  imageId: string | null;
   imageUrl: string;
   productId: string;
 }
@@ -9,7 +10,7 @@ export interface Product {
   id: string;
   title: string;
   description: string;
-  price: string | null;
+  price: string;
   category: string;
   images: ProductImage[];
 }
@@ -20,7 +21,9 @@ export interface ProductFormData {
   price: string;
   category: string;
   images: File[];
+  imageUrls: string[]; // NEW: for URL inputs
   imagePreviews: string[];
+  imageInputType: "file" | "url"; // NEW: track input type
 }
 
 export const initialProductFormData: ProductFormData = {
@@ -29,16 +32,7 @@ export const initialProductFormData: ProductFormData = {
   price: "",
   category: "",
   images: [],
+  imageUrls: [], // NEW
   imagePreviews: [],
+  imageInputType: "file", // NEW
 };
-
-// Available categories
-export const PRODUCT_CATEGORIES = [
-  "Electrical Equipment",
-  "Solar Products",
-  "Networking & IT Hardware",
-  "Security Systems",
-  "Plumbing Materials",
-  "Construction Materials",
-  "Other",
-];

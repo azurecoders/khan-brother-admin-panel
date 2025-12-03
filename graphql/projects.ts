@@ -35,7 +35,8 @@ export const CREATE_PROJECT = gql`
     $description: String!
     $location: String!
     $category: String!
-    $image: Upload!
+    $image: Upload
+    $imageUrl: String
   ) {
     createProject(
       title: $title
@@ -43,6 +44,7 @@ export const CREATE_PROJECT = gql`
       location: $location
       category: $category
       image: $image
+      imageUrl: $imageUrl
     ) {
       id
       title
@@ -62,6 +64,7 @@ export const UPDATE_PROJECT = gql`
     $location: String
     $category: String
     $image: Upload
+    $imageUrl: String
   ) {
     updateProject(
       id: $id
@@ -70,6 +73,7 @@ export const UPDATE_PROJECT = gql`
       location: $location
       category: $category
       image: $image
+      imageUrl: $imageUrl
     ) {
       id
       title

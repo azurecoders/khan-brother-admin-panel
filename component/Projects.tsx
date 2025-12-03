@@ -25,6 +25,8 @@ const Projects = () => {
     resetForm,
     handleInputChange,
     handleImageChange,
+    handleImageUrlChange,
+    handleImageInputTypeChange,
     handleEdit,
     handleDelete,
     handleSubmit,
@@ -81,6 +83,8 @@ const Projects = () => {
         onSubmit={handleSubmit}
         onInputChange={handleInputChange}
         onImageChange={handleImageChange}
+        onImageUrlChange={handleImageUrlChange}
+        onImageInputTypeChange={handleImageInputTypeChange}
       />
     </div>
   );

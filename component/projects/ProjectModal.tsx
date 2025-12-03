@@ -1,6 +1,6 @@
 // components/projects/ProjectModal.tsx
-import { ChangeEvent } from "react";
-import { Upload, X } from "lucide-react";
+import { ChangeEvent, useState } from "react";
+import { Upload, X, Link, ImageIcon } from "lucide-react";
 import { Project, ProjectFormData } from "@/types/project";
 
 interface Category {
@@ -21,6 +21,8 @@ interface ProjectModalProps {
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => void;
   onImageChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onImageUrlChange: (url: string) => void;
+  onImageInputTypeChange: (type: 'file' | 'url') => void;
 }
 
 const ProjectModal = ({
@@ -34,8 +36,35 @@ const ProjectModal = ({
   onSubmit,
   onInputChange,
   onImageChange,
+  onImageUrlChange,
+  onImageInputTypeChange,
 }: ProjectModalProps) => {
+  const [urlInput, setUrlInput] = useState("");
+
   if (!isOpen) return null;
+
+  const handleUrlApply = () => {
+    if (urlInput.trim()) {
+      try {
+        new URL(urlInput);
+        onImageUrlChange(urlInput.trim());
+        setUrlInput("");
+      } catch {
+        alert("Please enter a valid URL");
+      }
+    }
+  };
+
+  const handleUrlKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleUrlApply();
+    }
+  };
+
+  const isExistingImage = (preview: string) => {
+    return !preview.startsWith("blob:") && editingProject?.imageUrl === preview;
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -130,7 +159,7 @@ const ProjectModal = ({
             />
           </div>
 
-          {/* Image Upload */}
+          {/* Image Section */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Project Image {!editingProject && "*"}
@@ -141,39 +170,116 @@ const ProjectModal = ({
                 </span>
               )}
             </label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#1E40AF] transition-colors cursor-pointer">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={onImageChange}
-                className="hidden"
-                id="project-image"
-              />
-              <label htmlFor="project-image" className="cursor-pointer block">
-                {formData.imagePreview ? (
-                  <div className="space-y-2">
-                    <img
-                      src={formData.imagePreview}
-                      alt="Preview"
-                      className="w-full max-w-xs mx-auto h-40 object-cover rounded-lg"
-                    />
-                    <p className="text-sm text-gray-600">
-                      {formData.image
-                        ? "New image selected - Click to change"
-                        : "Current image - Click to change"}
-                    </p>
-                  </div>
-                ) : (
+
+            {/* Toggle Buttons */}
+            <div className="flex gap-2 mb-4">
+              <button
+                type="button"
+                onClick={() => onImageInputTypeChange('file')}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border-2 transition-colors ${formData.imageInputType === 'file'
+                  ? 'border-[#1E40AF] bg-blue-50 text-[#1E40AF]'
+                  : 'border-gray-300 hover:border-gray-400 text-gray-600'
+                  }`}
+              >
+                <ImageIcon size={18} />
+                Upload File
+              </button>
+              <button
+                type="button"
+                onClick={() => onImageInputTypeChange('url')}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border-2 transition-colors ${formData.imageInputType === 'url'
+                  ? 'border-[#1E40AF] bg-blue-50 text-[#1E40AF]'
+                  : 'border-gray-300 hover:border-gray-400 text-gray-600'
+                  }`}
+              >
+                <Link size={18} />
+                Enter URL
+              </button>
+            </div>
+
+            {/* Image Preview */}
+            {formData.imagePreview && (
+              <div className="mb-4 relative">
+                <img
+                  src={formData.imagePreview}
+                  alt="Preview"
+                  className="w-full max-w-xs mx-auto h-40 object-cover rounded-lg border border-gray-200"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150?text=Error';
+                  }}
+                />
+                <div className="absolute top-2 right-2 flex gap-1">
+                  {isExistingImage(formData.imagePreview) && (
+                    <span className="bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded">
+                      Current
+                    </span>
+                  )}
+                  {formData.imagePreview.startsWith("blob:") && (
+                    <span className="bg-purple-500 text-white text-xs px-1.5 py-0.5 rounded">
+                      New
+                    </span>
+                  )}
+                  {formData.imageUrl && !formData.imagePreview.startsWith("blob:") && !isExistingImage(formData.imagePreview) && (
+                    <span className="bg-green-500 text-white text-xs px-1.5 py-0.5 rounded">
+                      URL
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* File Upload Area */}
+            {formData.imageInputType === 'file' && (
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#1E40AF] transition-colors cursor-pointer">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={onImageChange}
+                  className="hidden"
+                  id="project-image"
+                />
+                <label htmlFor="project-image" className="cursor-pointer block">
                   <div className="space-y-2">
                     <Upload className="mx-auto text-gray-400" size={32} />
                     <p className="text-sm font-medium text-gray-700">
-                      Upload project image
+                      {formData.imagePreview ? "Click to change image" : "Upload project image"}
                     </p>
                     <p className="text-xs text-gray-500">PNG, JPG, WebP</p>
                   </div>
-                )}
-              </label>
-            </div>
+                </label>
+              </div>
+            )}
+
+            {/* URL Input Area */}
+            {formData.imageInputType === 'url' && (
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <div className="flex-1 relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Link size={18} className="text-gray-400" />
+                    </div>
+                    <input
+                      type="url"
+                      value={urlInput}
+                      onChange={(e) => setUrlInput(e.target.value)}
+                      onKeyDown={handleUrlKeyDown}
+                      placeholder="https://example.com/image.jpg"
+                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleUrlApply}
+                    className="px-4 py-2.5 bg-[#1E40AF] hover:bg-[#1E3A8A] text-white rounded-lg transition-colors"
+                  >
+                    Apply
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Enter image URL and click Apply or press Enter
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Action Buttons */}

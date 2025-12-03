@@ -1,3 +1,4 @@
+// graphql/product.ts
 import { gql } from "@apollo/client";
 
 export const FETCH_ALL_PRODUCTS = gql`
@@ -43,6 +44,7 @@ export const CREATE_PRODUCT = gql`
     $category: String!
     $price: String
     $images: [Upload!]
+    $imageUrls: [String!]
   ) {
     createProduct(
       title: $title
@@ -50,6 +52,7 @@ export const CREATE_PRODUCT = gql`
       category: $category
       price: $price
       images: $images
+      imageUrls: $imageUrls
     ) {
       id
       title
@@ -74,6 +77,7 @@ export const UPDATE_PRODUCT = gql`
     $category: String
     $price: String
     $images: [Upload!]
+    $imageUrls: [String!]
   ) {
     updateProduct(
       id: $id
@@ -82,6 +86,7 @@ export const UPDATE_PRODUCT = gql`
       category: $category
       price: $price
       images: $images
+      imageUrls: $imageUrls
     ) {
       id
       title

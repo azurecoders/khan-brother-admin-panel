@@ -25,6 +25,8 @@ const Services = () => {
     resetForm,
     handleInputChange,
     handleImageChange,
+    handleIconUrlChange,        // NEW
+    handleIconInputTypeChange,  // NEW
     handleAddSubService,
     handleRemoveSubService,
     handleEdit,
@@ -83,6 +85,8 @@ const Services = () => {
         onSubmit={handleSubmit}
         onInputChange={handleInputChange}
         onImageChange={handleImageChange}
+        onIconUrlChange={handleIconUrlChange}           // NEW
+        onIconInputTypeChange={handleIconInputTypeChange} // NEW
         onAddSubService={handleAddSubService}
         onRemoveSubService={handleRemoveSubService}
       />

@@ -113,20 +113,45 @@ export const useProjects = () => {
       setFormData((prev) => ({
         ...prev,
         image: file,
+        imageUrl: "",
         imagePreview: URL.createObjectURL(file),
       }));
     }
   };
 
+  const handleImageUrlChange = (url: string) => {
+    // Revoke previous blob URL if exists
+    if (formData.imagePreview?.startsWith("blob:")) {
+      URL.revokeObjectURL(formData.imagePreview);
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      image: null,
+      imageUrl: url,
+      imagePreview: url,
+    }));
+  };
+
+  const handleImageInputTypeChange = (type: "file" | "url") => {
+    setFormData((prev) => ({
+      ...prev,
+      imageInputType: type,
+    }));
+  };
+
   const handleEdit = (project: Project) => {
     setEditingProject(project);
+    const isExternalUrl = !project.imageId;
     setFormData({
       title: project.title,
       description: project.description,
       location: project.location,
       category: project.category || "",
       image: null,
+      imageUrl: isExternalUrl ? project.imageUrl : "",
       imagePreview: project.imageUrl,
+      imageInputType: "file",
     });
     setIsModalOpen(true);
   };
@@ -138,9 +163,10 @@ export const useProjects = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation
-    if (!formData.image && !editingProject) {
-      alert("Please upload an image");
+    // Validation - need either file or URL
+    const hasImage = formData.image || formData.imageUrl;
+    if (!hasImage && !editingProject) {
+      alert("Please upload an image or enter an image URL");
       return;
     }
 
@@ -163,20 +189,27 @@ export const useProjects = () => {
         // Only include image if new one was selected
         if (formData.image) {
           variables.image = formData.image;
+        } else if (formData.imageUrl) {
+          variables.imageUrl = formData.imageUrl;
         }
 
         await updateProject({ variables });
       } else {
         // Create project
-        await createProject({
-          variables: {
-            title: formData.title,
-            description: formData.description,
-            location: formData.location,
-            category: formData.category,
-            image: formData.image,
-          },
-        });
+        const variables: Record<string, any> = {
+          title: formData.title,
+          description: formData.description,
+          location: formData.location,
+          category: formData.category,
+        };
+
+        if (formData.image) {
+          variables.image = formData.image;
+        } else if (formData.imageUrl) {
+          variables.imageUrl = formData.imageUrl;
+        }
+
+        await createProject({ variables });
       }
     } catch (error) {
       console.error("Submit error:", error);
@@ -221,6 +254,8 @@ export const useProjects = () => {
     resetForm,
     handleInputChange,
     handleImageChange,
+    handleImageUrlChange,
+    handleImageInputTypeChange,
     handleEdit,
     handleDelete,
     handleSubmit,

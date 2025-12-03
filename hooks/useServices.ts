@@ -72,14 +72,12 @@ export const useServices = () => {
     const services: Service[] = data?.fetchAllServices || [];
 
     return services.filter((service) => {
-      // Search filter
       const matchesSearch =
         service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         service.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (service.category &&
           service.category.toLowerCase().includes(searchTerm.toLowerCase()));
 
-      // Category filter
       const matchesCategory =
         categoryFilter === "all" || service.category === categoryFilter;
 
@@ -101,9 +99,34 @@ export const useServices = () => {
       setFormData((prev) => ({
         ...prev,
         icon: file,
+        iconUrl: "", // Clear URL when file is selected
         iconPreview: URL.createObjectURL(file),
       }));
     }
+  };
+
+  // NEW: Handle icon URL change
+  const handleIconUrlChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const url = e.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      iconUrl: url,
+      icon: null, // Clear file when URL is entered
+      iconPreview: url, // Use URL as preview
+    }));
+  };
+
+  // NEW: Handle icon input type toggle
+  const handleIconInputTypeChange = (type: "file" | "url") => {
+    setFormData((prev) => ({
+      ...prev,
+      iconInputType: type,
+      // Clear the other input when switching
+      ...(type === "file" ? { iconUrl: "" } : { icon: null }),
+      // Keep preview if switching to URL and there's no URL yet
+      iconPreview:
+        type === "url" ? prev.iconUrl || prev.iconPreview : prev.iconPreview,
+    }));
   };
 
   const handleAddSubService = (value: string) => {
@@ -124,12 +147,18 @@ export const useServices = () => {
 
   const handleEdit = (service: Service) => {
     setEditingService(service);
+
+    // Determine if the existing icon is a URL or was uploaded
+    const isExternalUrl = service.icon && !service.icon.includes("imagekit");
+
     setFormData({
       name: service.name,
       description: service.description,
       category: service.category || "",
       icon: null,
+      iconUrl: isExternalUrl ? service.icon : "",
       iconPreview: service.icon,
+      iconInputType: isExternalUrl ? "url" : "file",
       subServices: service.subServices.map((s) => s.name),
     });
     setIsModalOpen(true);
@@ -142,10 +171,26 @@ export const useServices = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation
-    if (!formData.icon && !editingService) {
-      alert("Please upload an icon");
+    // Validation - require either file or URL for new services
+    const hasIcon =
+      formData.icon || (formData.iconUrl && formData.iconUrl.trim() !== "");
+    if (!hasIcon && !editingService) {
+      alert("Please upload an icon or provide an icon URL");
       return;
+    }
+
+    // Validate URL format if URL is provided
+    if (
+      formData.iconInputType === "url" &&
+      formData.iconUrl &&
+      formData.iconUrl.trim() !== ""
+    ) {
+      try {
+        new URL(formData.iconUrl);
+      } catch {
+        alert("Please enter a valid URL");
+        return;
+      }
     }
 
     if (!formData.category) {
@@ -163,21 +208,39 @@ export const useServices = () => {
           subServices: formData.subServices,
         };
 
-        if (formData.icon) {
+        // Only add icon fields if user is actually changing the icon
+        if (formData.iconInputType === "file" && formData.icon) {
           variables.icon = formData.icon;
+          // Don't send iconUrl when uploading file
+        } else if (
+          formData.iconInputType === "url" &&
+          formData.iconUrl &&
+          formData.iconUrl.trim() !== ""
+        ) {
+          variables.iconUrl = formData.iconUrl;
+          // Don't send icon when using URL
         }
+        // If neither, don't send any icon field - keep existing
+
+        console.log("Editing service", variables);
 
         await updateService({ variables });
       } else {
-        await createService({
-          variables: {
-            name: formData.name,
-            description: formData.description,
-            category: formData.category,
-            icon: formData.icon,
-            subServices: formData.subServices,
-          },
-        });
+        const variables: Record<string, any> = {
+          name: formData.name,
+          description: formData.description,
+          category: formData.category,
+          subServices: formData.subServices,
+        };
+
+        // Add icon based on input type
+        if (formData.iconInputType === "file" && formData.icon) {
+          variables.icon = formData.icon;
+        } else if (formData.iconInputType === "url" && formData.iconUrl) {
+          variables.iconUrl = formData.iconUrl;
+        }
+
+        await createService({ variables });
       }
     } catch (error) {
       console.error("Submit error:", error);
@@ -221,6 +284,8 @@ export const useServices = () => {
     resetForm,
     handleInputChange,
     handleImageChange,
+    handleIconUrlChange, // NEW
+    handleIconInputTypeChange, // NEW
     handleAddSubService,
     handleRemoveSubService,
     handleEdit,
