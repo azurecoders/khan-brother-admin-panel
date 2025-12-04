@@ -8,7 +8,7 @@ import {
   MessageSquare,
   Package,
   Users,
-  X
+  X,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -30,7 +30,6 @@ const DashboardSidebar = ({
   const { logout, admin } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  // Icon mapping for each menu item (with Categories icon added)
   const iconMap: Record<string, React.ReactNode> = {
     overview: <LayoutGrid size={20} />,
     services: <Briefcase size={20} />,
@@ -50,7 +49,7 @@ const DashboardSidebar = ({
     if (confirmLogout) {
       try {
         setIsLoggingOut(true);
-        logout();
+        await logout();
       } catch (error) {
         console.error("Logout error:", error);
         alert("An error occurred during logout. Please try again.");
@@ -72,67 +71,66 @@ const DashboardSidebar = ({
         }
       `}</style>
 
-      {/* Mobile Overlay - Dark backdrop when sidebar is open on mobile */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 md:hidden z-40 transition-opacity"
-          onClick={() => onToggle(false)}
-          aria-hidden="true"
-        />
-      )}
+      {/* Mobile Overlay - Fades in/out */}
+      <div
+        className={`fixed inset-0 bg-black/50 md:hidden z-40 transition-opacity duration-300 ${
+          isSidebarOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => onToggle(false)}
+        aria-hidden="true"
+      />
 
-      {/* Sidebar Container - ORIGINAL BLUE THEME */}
+      {/* Sidebar Container */}
       <aside
-        className={`fixed md:static top-0 left-0 h-screen bg-[#1E40AF] transition-transform duration-300 z-50 md:z-auto flex flex-col shadow-xl md:shadow-none ${isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-          }`}
+        className={`fixed md:static top-0 left-0 h-screen bg-primary text-primary-foreground shadow-xl md:shadow-none flex flex-col transition-transform duration-300 z-50 md:z-auto ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        }`}
         style={{
-          width: "15%",
-          minWidth: "265px",
+          width: "16rem",
+          minWidth: "256px",
           maxWidth: "320px",
-          margin: 0,
-          padding: 0,
         }}
+        aria-label="[translate:Sidebar navigation]"
       >
-        {/* Mobile Header with Close Button - PERFECTLY ALIGNED */}
-        <div className="md:hidden bg-[#1E40AF] border-b border-white/10 px-4 py-3 flex items-center justify-between">
-          {/* Mobile Branding - PERFECTLY ALIGNED TO LEFT */}
-          <div className="flex items-center gap-2 flex-1">
+        {/* Mobile Header */}
+        <div className="md:hidden bg-primary border-b border-white/10 px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
             <img
               src={"/KhanBrother_Logo.jpeg"}
-              alt="KB Logo"
-              className="h-8 w-8 object-contain rounded-sm bg-white p-1"
+              alt="[translate:KB Logo]"
+              className="h-8 w-8 object-contain rounded-sm bg-white p-1 flex-shrink-0"
             />
-            <div className="flex flex-col">
-              <span className="font-bold text-lg leading-tight text-white tracking-tight">
+            <div className="flex flex-col flex-1 min-w-0">
+              <span className="font-bold text-lg tracking-tight whitespace-nowrap">
                 KHAN BROTHERS
               </span>
-              <span className="text-[9px] text-blue-200 tracking-wider uppercase font-medium">
-                Admin Panel
+              <span className="text-[9px] text-blue-200 tracking-wider uppercase font-medium whitespace-nowrap">
+                Engineering & Solutions
               </span>
             </div>
           </div>
 
-          {/* Mobile Close Button - ON RIGHT SIDE */}
           <button
             onClick={() => onToggle(false)}
             className="p-2 hover:bg-white/10 rounded-lg transition-colors flex-shrink-0 ml-2"
-            aria-label="Close sidebar"
+            aria-label="[translate:Close sidebar]"
           >
-            <X size={24} className="text-white" />
+            <X size={24} />
           </button>
         </div>
 
-        {/* Desktop Header Section - PERFECTLY ALIGNED */}
+        {/* Desktop Header */}
         <div className="hidden md:block p-6 pb-6 border-b border-white/10">
-          {/* Logo Section - PERFECTLY ALIGNED TO LEFT */}
           <div className="flex items-center gap-3">
             <img
               src={"/KhanBrother_Logo.jpeg"}
-              alt="KB Logo"
+              alt="[translate:KB Logo]"
               className="h-8 w-8 object-contain rounded-sm bg-white p-1"
             />
             <div className="flex flex-col">
-              <span className="font-bold text-xl leading-tight text-white tracking-tight">
+              <span className="font-bold text-xl tracking-tight">
                 KHAN BROTHERS
               </span>
               <span className="text-[10px] text-blue-200 tracking-wider uppercase font-medium">
@@ -140,29 +138,13 @@ const DashboardSidebar = ({
               </span>
             </div>
           </div>
-
-          {/* Admin Info Display */}
-          {admin && (
-            <div className="mt-4 pt-4 border-t border-white/10">
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-semibold text-sm">
-                  {admin.name.charAt(0).toUpperCase()}
-                </div>
-                <div className="flex flex-col flex-1 min-w-0">
-                  <span className="text-white text-sm font-medium truncate">
-                    {admin.name}
-                  </span>
-                  <span className="text-blue-200 text-xs truncate">
-                    {admin.email}
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
-        {/* Navigation Menu - ORIGINAL BLUE THEME */}
-        <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto scrollbar-hide">
+        {/* Navigation */}
+        <nav
+          className="flex-1 px-4 py-6 space-y-2 overflow-y-auto scrollbar-hide"
+          aria-label="[translate:Main navigation]"
+        >
           {links.map((link) => {
             const isActive = activeLink === link.id;
             return (
@@ -170,36 +152,65 @@ const DashboardSidebar = ({
                 key={link.id}
                 onClick={() => {
                   onLinkChange(link.id);
-                  onToggle(false); // Close sidebar on mobile after selection
+                  onToggle(false);
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-lg transition-all duration-200 font-medium ${isActive
-                  ? "bg-[#F97316] text-white shadow-lg" // ORIGINAL ORANGE ACTIVE STATE
-                  : "text-blue-100 hover:bg-[#1E3A8A] hover:text-white" // ORIGINAL HOVER STATE
-                  }`}
                 aria-current={isActive ? "page" : undefined}
+                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-secondary ${
+                  isActive
+                    ? "bg-secondary text-white shadow-lg"
+                    : "text-blue-100 hover:bg-primary-hover hover:text-white"
+                }`}
               >
-                <span className="flex-shrink-0">{iconMap[link.id]}</span>
+                <span
+                  className={`flex-shrink-0 ${
+                    isActive ? "text-white" : "text-blue-300"
+                  }`}
+                >
+                  {iconMap[link.id]}
+                </span>
                 <span className="text-[15px]">{link.label}</span>
               </button>
             );
           })}
         </nav>
 
-        {/* Footer with Logout Button - ORIGINAL BLUE THEME */}
+        {/* Dynamic Admin Info + Logout — NOW 100% LIVE FROM DATABASE */}
         <div className="p-4 border-t border-white/10">
+          {admin ? (
+            <div className="mb-4 flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center text-white font-bold text-lg shadow-md">
+                {admin.name.charAt(0).toUpperCase()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p
+                  className="text-sm font-semibold truncate"
+                  title={admin.name}
+                >
+                  {admin.name}
+                </p>
+                <a
+                  href={`mailto:${admin.email}`}
+                  className="text-xs text-blue-200 hover:underline truncate block"
+                  title={admin.email}
+                >
+                  {admin.email}
+                </a>
+              </div>
+            </div>
+          ) : (
+            <div className="mb-4 text-center text-blue-200 text-sm">
+              Loading user...
+            </div>
+          )}
+
           <button
             onClick={handleLogout}
             disabled={isLoggingOut}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-[#EF4444] hover:bg-[#DC2626] text-white rounded-lg transition-all duration-200 font-semibold shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-all disabled:opacity-50"
           >
             <LogOut size={20} className={isLoggingOut ? "animate-spin" : ""} />
             <span>{isLoggingOut ? "Logging out..." : "Logout"}</span>
           </button>
-
-          {/* Footer Note */}
-          <div className="mt-3 text-center">
-            <p className="text-[10px] text-blue-200">Secure Admin Access</p>
-          </div>
         </div>
       </aside>
     </>
