@@ -1,4 +1,3 @@
-// components/products/ProductModal.tsx
 import { ChangeEvent, useState } from "react";
 import { Upload, X, Trash2, Link, ImageIcon, Plus } from "lucide-react";
 import { Product, ProductFormData } from "@/types/product";
@@ -22,7 +21,7 @@ interface ProductModalProps {
   ) => void;
   onImagesChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onImageUrlAdd: (url: string) => void;
-  onImageInputTypeChange: (type: 'file' | 'url') => void;
+  onImageInputTypeChange: (type: "file" | "url") => void;
   onRemoveImage: (index: number) => void;
 }
 
@@ -45,15 +44,6 @@ const ProductModal = ({
 
   if (!isOpen) return null;
 
-  // Check if preview is from existing images or new upload
-  const isExistingImage = (preview: string) => {
-    return !preview.startsWith("blob:") && editingProduct?.images.some(img => img.imageUrl === preview);
-  };
-
-  const isNewUrl = (preview: string) => {
-    return !preview.startsWith("blob:") && !isExistingImage(preview);
-  };
-
   const handleAddUrl = () => {
     if (urlInput.trim()) {
       onImageUrlAdd(urlInput.trim());
@@ -61,7 +51,7 @@ const ProductModal = ({
     }
   };
 
-  const handleUrlKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleUrlKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       e.preventDefault();
       handleAddUrl();
@@ -69,42 +59,55 @@ const ProductModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in duration-300">
+        <div className="bg-gradient-to-r from-[#1E40AF] to-[#1E3A8A] px-8 py-6 text-white flex items-center justify-between">
+          <h2 className="text-2xl font-bold">
             {editingProduct ? "Edit Product" : "Add New Product"}
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-white/20 rounded-xl transition-all"
           >
-            <X size={20} />
+            <X size={24} />
           </button>
         </div>
 
-        <form onSubmit={onSubmit} className="p-6 space-y-6">
-          {/* Product Title */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Product Title *
-            </label>
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={onInputChange}
-              required
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent"
-              placeholder="Enter product title"
-            />
+        <form onSubmit={onSubmit} className="p-8 space-y-8">
+          <div className="grid md:grid-cols-2 gap-8">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Product Title <span className="text-orange-600">*</span>
+              </label>
+              <input
+                type="text"
+                name="title"
+                value={formData.title}
+                onChange={onInputChange}
+                required
+                className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all"
+                placeholder="e.g., ABB Circuit Breaker 100A"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Price (Optional)
+              </label>
+              <input
+                type="text"
+                name="price"
+                value={formData.price}
+                onChange={onInputChange}
+                className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all"
+                placeholder="e.g., PKR 45,000"
+              />
+            </div>
           </div>
 
-          {/* Category and Price */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-2 gap-8">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Category *
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Category <span className="text-orange-600">*</span>
               </label>
               <select
                 name="category"
@@ -112,214 +115,148 @@ const ProductModal = ({
                 onChange={onInputChange}
                 required
                 disabled={categoriesLoading}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all disabled:opacity-50"
               >
                 <option value="">Select Category</option>
-                {categoriesLoading ? (
-                  <option disabled>Loading categories...</option>
-                ) : (
-                  categories?.map((category) => (
-                    <option key={category.id} value={category.name}>
-                      {category.name}
-                    </option>
-                  ))
-                )}
+                {categories.map((c) => (
+                  <option key={c.id} value={c.name}>
+                    {c.name}
+                  </option>
+                ))}
               </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Price
-              </label>
-              <input
-                type="text"
-                name="price"
-                value={formData.price}
-                onChange={onInputChange}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent"
-                placeholder="e.g., PKR 25,000"
-              />
             </div>
           </div>
 
-          {/* Description */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Description *
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Description <span className="text-orange-600">*</span>
             </label>
             <textarea
               name="description"
               value={formData.description}
               onChange={onInputChange}
               required
-              rows={3}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent resize-none"
-              placeholder="Enter product description"
+              rows={5}
+              className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all resize-none"
+              placeholder="Detailed product description..."
             />
           </div>
 
-          {/* Images Section */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-4">
               Product Images
-              {editingProduct && (
-                <span className="text-gray-500 font-normal">
-                  {" "}(Add new images to replace existing ones)
-                </span>
-              )}
             </label>
-
-            {/* Toggle Buttons */}
-            <div className="flex gap-2 mb-4">
+            <div className="flex gap-4 mb-6">
               <button
                 type="button"
-                onClick={() => onImageInputTypeChange('file')}
-                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border-2 transition-colors ${formData.imageInputType === 'file'
-                    ? 'border-[#1E40AF] bg-blue-50 text-[#1E40AF]'
-                    : 'border-gray-300 hover:border-gray-400 text-gray-600'
-                  }`}
+                onClick={() => onImageInputTypeChange("file")}
+                className={`flex-1 py-4 rounded-2xl border-2 font-medium transition-all ${
+                  formData.imageInputType === "file"
+                    ? "border-orange-500 bg-orange-50 text-orange-700"
+                    : "border-gray-300 hover:border-gray-400"
+                }`}
               >
-                <ImageIcon size={18} />
-                Upload Files
+                <ImageIcon className="inline mr-2" size={20} /> Upload Files
               </button>
               <button
                 type="button"
-                onClick={() => onImageInputTypeChange('url')}
-                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border-2 transition-colors ${formData.imageInputType === 'url'
-                    ? 'border-[#1E40AF] bg-blue-50 text-[#1E40AF]'
-                    : 'border-gray-300 hover:border-gray-400 text-gray-600'
-                  }`}
+                onClick={() => onImageInputTypeChange("url")}
+                className={`flex-1 py-4 rounded-2xl border-2 font-medium transition-all ${
+                  formData.imageInputType === "url"
+                    ? "border-orange-500 bg-orange-50 text-orange-700"
+                    : "border-gray-300 hover:border-gray-400"
+                }`}
               >
-                <Link size={18} />
-                Enter URLs
+                <Link className="inline mr-2" size={20} /> Enter URLs
               </button>
             </div>
 
-            {/* Image Previews */}
             {formData.imagePreviews.length > 0 && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-4">
-                {formData.imagePreviews.map((preview, index) => (
-                  <div key={index} className="relative group">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                {formData.imagePreviews.map((preview, i) => (
+                  <div key={i} className="relative group">
                     <img
                       src={preview}
-                      alt={`Preview ${index + 1}`}
-                      className="w-full h-24 object-cover rounded-lg border border-gray-200"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150?text=Error';
-                      }}
+                      alt=""
+                      className="w-full h-32 rounded-2xl object-cover shadow-lg"
                     />
-                    <div className="absolute top-1 right-1 flex gap-1">
-                      {isExistingImage(preview) && (
-                        <span className="bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded">
-                          Current
-                        </span>
-                      )}
-                      {isNewUrl(preview) && (
-                        <span className="bg-green-500 text-white text-xs px-1.5 py-0.5 rounded">
-                          URL
-                        </span>
-                      )}
-                      {preview.startsWith("blob:") && (
-                        <span className="bg-purple-500 text-white text-xs px-1.5 py-0.5 rounded">
-                          New
-                        </span>
-                      )}
-                      {!isExistingImage(preview) && (
-                        <button
-                          type="button"
-                          onClick={() => onRemoveImage(index)}
-                          className="bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <Trash2 size={12} />
-                        </button>
-                      )}
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => onRemoveImage(i)}
+                      className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
+                    >
+                      <Trash2 size={14} />
+                    </button>
                   </div>
                 ))}
               </div>
             )}
 
-            {/* File Upload Area */}
-            {formData.imageInputType === 'file' && (
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#1E40AF] transition-colors cursor-pointer">
+            {formData.imageInputType === "file" && (
+              <div className="border-2 border-dashed border-gray-300 rounded-3xl p-12 text-center hover:border-orange-500 transition-all cursor-pointer">
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={onImagesChange}
                   multiple
+                  onChange={onImagesChange}
                   className="hidden"
-                  id="product-images"
+                  id="product-images-upload"
                 />
-                <label htmlFor="product-images" className="cursor-pointer block">
-                  <div className="space-y-2">
-                    <Upload className="mx-auto text-gray-400" size={32} />
-                    <p className="text-sm font-medium text-gray-700">
-                      Upload product images
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      PNG, JPG, WebP (Multiple files allowed)
-                    </p>
-                  </div>
+                <label
+                  htmlFor="product-images-upload"
+                  className="cursor-pointer"
+                >
+                  <Upload size={56} className="mx-auto text-gray-400 mb-4" />
+                  <p className="font-bold text-gray-700">
+                    Drop images here or click to upload
+                  </p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    Supports multiple images • PNG, JPG, WebP
+                  </p>
                 </label>
               </div>
             )}
 
-            {/* URL Input Area */}
-            {formData.imageInputType === 'url' && (
-              <div className="space-y-3">
-                <div className="flex gap-2">
-                  <div className="flex-1 relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Link size={18} className="text-gray-400" />
-                    </div>
-                    <input
-                      type="url"
-                      value={urlInput}
-                      onChange={(e) => setUrlInput(e.target.value)}
-                      onKeyDown={handleUrlKeyDown}
-                      placeholder="https://example.com/image.jpg"
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E40AF] focus:border-transparent"
-                    />
-                  </div>
+            {formData.imageInputType === "url" && (
+              <div className="space-y-4">
+                <div className="flex gap-3">
+                  <input
+                    type="url"
+                    value={urlInput}
+                    onChange={(e) => setUrlInput(e.target.value)}
+                    onKeyDown={handleUrlKeyDown}
+                    placeholder="https://example.com/image.jpg"
+                    className="flex-1 px-5 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all"
+                  />
                   <button
                     type="button"
                     onClick={handleAddUrl}
-                    className="px-4 py-2.5 bg-[#1E40AF] hover:bg-[#1E3A8A] text-white rounded-lg transition-colors flex items-center gap-2"
+                    className="px-6 py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-2xl font-bold transition-all"
                   >
-                    <Plus size={18} />
-                    Add
+                    <Plus size={24} />
                   </button>
                 </div>
-                <p className="text-xs text-gray-500">
-                  Enter image URL and click Add or press Enter. You can add multiple URLs.
-                </p>
               </div>
             )}
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-4 pt-6">
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-[#1E40AF] hover:bg-[#1E3A8A] disabled:bg-gray-400 text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center"
+              className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-5 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-105 disabled:opacity-70"
             >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  {editingProduct ? "Updating..." : "Creating..."}
-                </>
-              ) : editingProduct ? (
-                "Update Product"
-              ) : (
-                "Add Product"
-              )}
+              {loading
+                ? "Saving..."
+                : editingProduct
+                ? "Update Product"
+                : "Create Product"}
             </button>
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="flex-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 text-white font-semibold py-3 rounded-lg transition-colors"
+              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-5 rounded-2xl transition-all"
             >
               Cancel
             </button>

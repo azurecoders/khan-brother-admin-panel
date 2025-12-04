@@ -1,5 +1,6 @@
 import { Edit, Trash2, Quote } from "lucide-react";
 import { Testimonial } from "@/types/testimonial";
+import StarRating from "./StarRating";
 
 interface TestimonialTableProps {
   testimonials: Testimonial[];
@@ -24,103 +25,86 @@ const TestimonialTable = ({
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-        <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1E40AF]"></div>
-          <span className="ml-3 text-gray-600">Loading testimonials...</span>
+      <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 p-16 text-center">
+        <div className="inline-flex items-center gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent"></div>
+          <span className="text-xl text-gray-700">Loading testimonials...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h2 className="text-xl font-bold text-gray-900">Client Testimonials</h2>
-        <p className="text-sm text-gray-600 mt-1">
-          Total: {testimonials.length}
+    <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 overflow-hidden">
+      <div className="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-[#1E40AF]/5 to-orange-500/5">
+        <h2 className="text-2xl font-bold text-gray-900">
+          Client Testimonials
+        </h2>
+        <p className="text-gray-600 mt-1">
+          Total:{" "}
+          <span className="font-bold text-orange-600">
+            {testimonials.length}
+          </span>{" "}
+          reviews
         </p>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Client Info
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Testimonial
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
-            {testimonials.length === 0 ? (
-              <tr>
-                <td colSpan={3} className="px-6 py-8 text-center text-gray-500">
-                  No testimonials found.{" "}
-                  {searchTerm
-                    ? "Try adjusting your search."
-                    : "Create your first testimonial to get started."}
-                </td>
-              </tr>
-            ) : (
-              testimonials.map((testimonial) => (
-                <tr
-                  key={testimonial.id}
-                  className="hover:bg-gray-50 transition-colors"
-                >
-                  {/* Client Info */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-[#1E40AF] to-[#EA580C] rounded-full flex items-center justify-center text-white">
-                        <Quote size={16} />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-gray-900 font-semibold">
-                          {testimonial.name}
-                        </span>
-                        <span className="text-gray-600 text-sm">
-                          {testimonial.designation}
-                        </span>
-                      </div>
+      <div className="divide-y divide-gray-100">
+        {testimonials.length === 0 ? (
+          <div className="text-center py-20 text-gray-500">
+            <div className="text-6xl mb-4">No testimonials yet</div>
+            <p className="text-xl">Start building trust with client stories</p>
+          </div>
+        ) : (
+          testimonials.map((testimonial) => (
+            <div
+              key={testimonial.id}
+              className="p-8 hover:bg-gradient-to-r hover:from-orange-50/30 hover:to-blue-50/30 transition-all duration-300"
+            >
+              <div className="flex items-start justify-between gap-8">
+                <div className="flex-1">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-[#1E40AF] to-orange-500 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                      {testimonial.name.charAt(0)}
                     </div>
-                  </td>
-
-                  {/* Testimonial */}
-                  <td className="px-6 py-4">
-                    <p className="text-sm text-gray-700 max-w-md line-clamp-2">
-                      "{testimonial.message}"
-                    </p>
-                  </td>
-
-                  {/* Actions */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => onEdit(testimonial)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                        title="Edit testimonial"
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(testimonial.id)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Delete testimonial"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">
+                        {testimonial.name}
+                      </h3>
+                      <p className="text-orange-600 font-medium">
+                        {testimonial.designation}
+                      </p>
                     </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+                  </div>
+                  <blockquote className="text-lg text-gray-700 italic leading-relaxed pl-6 border-l-4 border-orange-500">
+                    "{testimonial.message}"
+                  </blockquote>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={() => onEdit(testimonial)}
+                    className="p-3 bg-blue-50 hover:bg-blue-100 text-[#1E40AF] rounded-xl transition-all shadow-md hover:shadow-lg group"
+                  >
+                    <Edit
+                      size={18}
+                      className="group-hover:scale-110 transition-transform"
+                    />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(testimonial.id)}
+                    className="p-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-all shadow-md hover:shadow-lg group"
+                  >
+                    <Trash2
+                      size={18}
+                      className="group-hover:scale-110 transition-transform"
+                    />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ import {
   Package,
   Users,
   X,
+  Settings, // ← Added Settings icon
 } from "lucide-react";
 import { useState } from "react";
 
@@ -39,13 +40,13 @@ const DashboardSidebar = ({
     testimonials: <Users size={20} />,
     messages: <MessageSquare size={20} />,
     admins: <Users size={20} />,
+    settings: <Settings size={20} />, // ← Settings icon added
   };
 
   const handleLogout = async () => {
     const confirmLogout = window.confirm(
       "Are you sure you want to logout? You will be redirected to the login page."
     );
-
     if (confirmLogout) {
       try {
         setIsLoggingOut(true);
@@ -71,7 +72,7 @@ const DashboardSidebar = ({
         }
       `}</style>
 
-      {/* Mobile Overlay - Fades in/out */}
+      {/* Mobile Overlay */}
       <div
         className={`fixed inset-0 bg-black/50 md:hidden z-40 transition-opacity duration-300 ${
           isSidebarOpen
@@ -92,14 +93,14 @@ const DashboardSidebar = ({
           minWidth: "256px",
           maxWidth: "320px",
         }}
-        aria-label="[translate:Sidebar navigation]"
+        aria-label="Sidebar navigation"
       >
         {/* Mobile Header */}
         <div className="md:hidden bg-primary border-b border-white/10 px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <img
-              src={"/KhanBrother_Logo.jpeg"}
-              alt="[translate:KB Logo]"
+              src="/KhanBrother_Logo.jpeg"
+              alt="KB Logo"
               className="h-8 w-8 object-contain rounded-sm bg-white p-1 flex-shrink-0"
             />
             <div className="flex flex-col flex-1 min-w-0">
@@ -111,11 +112,10 @@ const DashboardSidebar = ({
               </span>
             </div>
           </div>
-
           <button
             onClick={() => onToggle(false)}
             className="p-2 hover:bg-white/10 rounded-lg transition-colors flex-shrink-0 ml-2"
-            aria-label="[translate:Close sidebar]"
+            aria-label="Close sidebar"
           >
             <X size={24} />
           </button>
@@ -125,8 +125,8 @@ const DashboardSidebar = ({
         <div className="hidden md:block p-6 pb-6 border-b border-white/10">
           <div className="flex items-center gap-3">
             <img
-              src={"/KhanBrother_Logo.jpeg"}
-              alt="[translate:KB Logo]"
+              src="/KhanBrother_Logo.jpeg"
+              alt="KB Logo"
               className="h-8 w-8 object-contain rounded-sm bg-white p-1"
             />
             <div className="flex flex-col">
@@ -143,7 +143,7 @@ const DashboardSidebar = ({
         {/* Navigation */}
         <nav
           className="flex-1 px-4 py-6 space-y-2 overflow-y-auto scrollbar-hide"
-          aria-label="[translate:Main navigation]"
+          aria-label="Main navigation"
         >
           {links.map((link) => {
             const isActive = activeLink === link.id;
@@ -174,7 +174,7 @@ const DashboardSidebar = ({
           })}
         </nav>
 
-        {/* Dynamic Admin Info + Logout — NOW 100% LIVE FROM DATABASE */}
+        {/* Dynamic Admin Info + Logout */}
         <div className="p-4 border-t border-white/10">
           {admin ? (
             <div className="mb-4 flex items-center gap-3">

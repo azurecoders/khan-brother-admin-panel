@@ -26,51 +26,59 @@ const Testimonials = () => {
 
   if (error) {
     return (
-      <div className="space-y-6 max-w-7xl">
-        <div className="bg-red-50 border border-red-200 rounded-xl p-6">
-          <h2 className="text-red-800 font-semibold">
-            Error loading testimonials
-          </h2>
-          <p className="text-red-600 mt-2">{error.message}</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50 p-4 md:p-8 lg:p-12">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-8 py-6 rounded-3xl shadow-lg">
+            <strong className="text-xl font-bold">
+              Error Loading Testimonials
+            </strong>
+            <p className="mt-2">{error.message}</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 max-w-7xl">
-      {/* Header */}
-      <div>
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">Testimonials</h1>
-        <p className="text-gray-600 text-lg">Manage client testimonials</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50 p-4 md:p-8 lg:p-12">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="text-center md:text-left">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
+            Client Testimonials
+          </h1>
+          <p className="text-xl text-gray-600">
+            Build trust with authentic client voices
+          </p>
+        </div>
+
+        {/* Filters */}
+        <TestimonialFilters
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          onAddClick={openAddModal}
+        />
+
+        {/* Table */}
+        <TestimonialTable
+          testimonials={filteredTestimonials}
+          loading={loading}
+          searchTerm={searchTerm}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+
+        {/* Modal */}
+        <TestimonialModal
+          isOpen={isModalOpen}
+          editingTestimonial={editingTestimonial}
+          formData={formData}
+          loading={mutationLoading}
+          onClose={resetForm}
+          onSubmit={handleSubmit}
+          onInputChange={handleInputChange}
+        />
       </div>
-
-      {/* Filters */}
-      <TestimonialFilters
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        onAddClick={openAddModal}
-      />
-
-      {/* Table */}
-      <TestimonialTable
-        testimonials={filteredTestimonials}
-        loading={loading}
-        searchTerm={searchTerm}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
-
-      {/* Modal */}
-      <TestimonialModal
-        isOpen={isModalOpen}
-        editingTestimonial={editingTestimonial}
-        formData={formData}
-        loading={mutationLoading}
-        onClose={resetForm}
-        onSubmit={handleSubmit}
-        onInputChange={handleInputChange}
-      />
     </div>
   );
 };

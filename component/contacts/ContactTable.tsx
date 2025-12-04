@@ -30,157 +30,121 @@ const ContactTable = ({
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-        <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1E40AF]"></div>
-          <span className="ml-3 text-gray-600">Loading messages...</span>
+      <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 p-16 text-center">
+        <div className="inline-flex items-center gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent"></div>
+          <span className="text-xl text-gray-700">Loading messages...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h2 className="text-xl font-bold text-gray-900">Contact Inquiries</h2>
-        <p className="text-sm text-gray-600 mt-1">
-          Total Messages: {contacts.length} | Unread: {unreadCount}
+    <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 overflow-hidden">
+      <div className="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-[#1E40AF]/5 to-orange-500/5">
+        <h2 className="text-2xl font-bold text-gray-900">Contact Inquiries</h2>
+        <p className="text-gray-600 mt-1">
+          Total: <span className="font-bold">{contacts.length}</span> | Unread:{" "}
+          <span className="font-bold text-orange-600">{unreadCount}</span>
         </p>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Sender Info
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Message
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Phone
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
-            {contacts.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                  No messages found.{" "}
-                  {searchTerm
-                    ? "Try adjusting your search."
-                    : "Contact form submissions will appear here."}
-                </td>
-              </tr>
-            ) : (
-              contacts.map((contact) => {
-                const contactIsRead = isRead(contact.id);
-                return (
-                  <tr
-                    key={contact.id}
-                    className={`hover:bg-gray-50 transition-colors ${!contactIsRead ? "bg-blue-50/30" : ""
+      <div className="divide-y divide-gray-100">
+        {contacts.length === 0 ? (
+          <div className="text-center py-20 text-gray-500">
+            <div className="text-6xl mb-4">📭</div>
+            <p className="text-xl">No messages yet</p>
+            <p className="text-gray-600">New inquiries will appear here</p>
+          </div>
+        ) : (
+          contacts.map((contact) => {
+            const contactIsRead = isRead(contact.id);
+            return (
+              <div
+                key={contact.id}
+                className={`p-8 hover:bg-gradient-to-r hover:from-orange-50/30 hover:to-blue-50/30 transition-all duration-300 ${
+                  !contactIsRead
+                    ? "bg-blue-50/20 border-l-4 border-orange-500"
+                    : ""
+                }`}
+              >
+                <div className="flex items-start justify-between gap-8">
+                  <div className="flex-1 flex items-start gap-5">
+                    <div
+                      className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg ${
+                        !contactIsRead
+                          ? "bg-gradient-to-br from-orange-500 to-orange-600"
+                          : "bg-gray-100"
                       }`}
-                  >
-                    {/* Sender Info */}
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center ${!contactIsRead ? "bg-blue-100" : "bg-gray-100"
-                            }`}
-                        >
-                          {!contactIsRead ? (
-                            <Mail size={20} className="text-blue-600" />
-                          ) : (
-                            <MailOpen size={20} className="text-gray-600" />
-                          )}
-                        </div>
-                        <div className="flex flex-col">
-                          <span
-                            className={`font-semibold ${!contactIsRead ? "text-gray-900" : "text-gray-700"
-                              }`}
-                          >
-                            {contact.name}
-                          </span>
-                          <span className="text-gray-600 text-sm">
-                            {contact.email}
-                          </span>
-                        </div>
+                    >
+                      {!contactIsRead ? (
+                        <Mail size={28} className="text-white" />
+                      ) : (
+                        <MailOpen size={28} className="text-gray-600" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-4 mb-2">
+                        <h3 className="text-xl font-bold text-gray-900">
+                          {contact.name}
+                        </h3>
+                        <span className="text-sm text-gray-500">
+                          • {contact.email}
+                        </span>
                       </div>
-                    </td>
-
-                    {/* Message */}
-                    <td className="px-6 py-4">
-                      <p
-                        className={`text-sm max-w-md line-clamp-2 ${!contactIsRead ? "text-gray-900" : "text-gray-700"
-                          }`}
-                      >
+                      <p className="text-gray-700 leading-relaxed">
                         {contact.message}
                       </p>
-                    </td>
-
-                    {/* Phone */}
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-1 text-sm text-gray-600">
-                        <Phone size={14} />
-                        {contact.phone}
+                      <div className="flex items-center gap-4 mt-4 text-sm">
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <Phone size={16} className="text-orange-600" />
+                          <span>{contact.phone}</span>
+                        </div>
+                        <span className="text-gray-400">•</span>
+                        <span className="text-gray-500">
+                          {new Date(
+                            contact.createdAt || Date.now()
+                          ).toLocaleString()}
+                        </span>
                       </div>
-                    </td>
+                    </div>
+                  </div>
 
-                    {/* Status */}
-                    <td className="px-6 py-4">
-                      <button
-                        onClick={() => onToggleStatus(contact.id)}
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors ${!contactIsRead
-                            ? "bg-blue-100 text-blue-800 hover:bg-blue-200"
-                            : "bg-gray-100 text-gray-800 hover:bg-gray-200"
-                          }`}
-                      >
-                        {!contactIsRead ? (
-                          <>
-                            <span className="w-2 h-2 bg-blue-600 rounded-full mr-1.5"></span>
-                            Unread
-                          </>
-                        ) : (
-                          <>
-                            <span className="text-green-600 mr-1">✓</span>
-                            Read
-                          </>
-                        )}
-                      </button>
-                    </td>
-
-                    {/* Actions */}
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => onView(contact)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="View message"
-                        >
-                          <Eye size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(contact.id)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Delete message"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => onToggleStatus(contact.id)}
+                      className={`px-4 py-2 rounded-full font-medium text-sm transition-all ${
+                        !contactIsRead
+                          ? "bg-orange-100 text-orange-800 hover:bg-orange-200"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
+                    >
+                      {!contactIsRead ? "Mark as Read" : "Mark as Unread"}
+                    </button>
+                    <button
+                      onClick={() => onView(contact)}
+                      className="p-3 bg-blue-50 hover:bg-blue-100 text-[#1E40AF] rounded-xl transition-all shadow-md hover:shadow-lg group"
+                    >
+                      <Eye
+                        size={18}
+                        className="group-hover:scale-110 transition-transform"
+                      />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(contact.id)}
+                      className="p-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-all shadow-md hover:shadow-lg group"
+                    >
+                      <Trash2
+                        size={18}
+                        className="group-hover:scale-110 transition-transform"
+                      />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );

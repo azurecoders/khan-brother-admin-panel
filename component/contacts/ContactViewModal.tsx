@@ -1,4 +1,4 @@
-import { X, Phone, Mail, User } from "lucide-react";
+import { X, Phone, Mail, User, Calendar, Clock } from "lucide-react";
 import { Contact } from "@/types/contact";
 
 interface ContactViewModalProps {
@@ -23,96 +23,79 @@ const ContactViewModal = ({
   const contactIsRead = isRead(contact.id);
 
   const handleDelete = () => {
-    if (confirm("Are you sure you want to delete this message?")) {
+    if (confirm("Are you sure you want to delete this message permanently?")) {
       onDelete(contact.id);
       onClose();
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl shadow-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Modal Header */}
-        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in duration-300">
+        <div className="bg-gradient-to-r from-[#1E40AF] to-[#1E3A8A] px-8 py-6 text-white flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Message Details</h2>
-            <p className="text-sm text-gray-600 mt-1">
-              Contact inquiry from {contact.name}
+            <h2 className="text-2xl font-bold">Message from {contact.name}</h2>
+            <p className="text-sm opacity-90">
+              Received{" "}
+              {new Date(contact.createdAt || Date.now()).toLocaleString()}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-white/20 rounded-xl transition-all"
           >
-            <X size={24} className="text-gray-600" />
+            <X size={24} />
           </button>
         </div>
 
-        {/* Modal Content */}
-        <div className="p-6 space-y-6">
-          {/* Sender Information */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">
-              Contact Information
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  <User size={20} className="text-blue-600" />
+        <div className="p-8 space-y-8">
+          {/* Sender Card */}
+          <div className="bg-gradient-to-br from-blue-50 to-orange-50 rounded-3xl p-8 border border-white/50 shadow-inner">
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="flex items-center gap-5">
+                <div className="w-20 h-20 bg-gradient-to-br from-[#1E40AF] to-orange-500 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-xl">
+                  {contact.name.charAt(0)}
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Name</p>
-                  <p className="text-gray-900 font-medium">{contact.name}</p>
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    {contact.name}
+                  </h3>
+                  <p className="text-orange-600 font-medium">{contact.email}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                  <Mail size={20} className="text-green-600" />
+
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <Phone className="text-orange-600" size={20} />
+                  <span className="font-medium">{contact.phone}</span>
                 </div>
-                <div>
-                  <p className="text-xs text-gray-500">Email</p>
-                  <a
-                    href={`mailto:${contact.email}`}
-                    className="text-blue-600 hover:underline font-medium"
-                  >
-                    {contact.email}
-                  </a>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                  <Phone size={20} className="text-orange-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Phone</p>
-                  <a
-                    href={`tel:${contact.phone}`}
-                    className="text-blue-600 hover:underline font-medium"
-                  >
-                    {contact.phone}
-                  </a>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${contactIsRead ? "bg-gray-100" : "bg-blue-100"
-                    }`}
-                >
-                  <span
-                    className={`text-lg ${contactIsRead ? "text-gray-600" : "text-blue-600"
-                      }`}
-                  >
-                    {contactIsRead ? "✓" : "●"}
+                <div className="flex items-center gap-4">
+                  <Calendar className="text-blue-600" size={20} />
+                  <span>
+                    {new Date(
+                      contact.createdAt || Date.now()
+                    ).toLocaleDateString()}
                   </span>
                 </div>
-                <div>
-                  <p className="text-xs text-gray-500">Status</p>
-                  <p
-                    className={`font-medium ${contactIsRead ? "text-gray-600" : "text-blue-600"
-                      }`}
-                  >
-                    {contactIsRead ? "Read" : "Unread"}
-                  </p>
+                <div className="flex items-center gap-4">
+                  <Clock className="text-gray-600" size={20} />
+                  <span>
+                    {new Date(
+                      contact.createdAt || Date.now()
+                    ).toLocaleTimeString()}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end">
+                <div
+                  className={`px-6 py-3 rounded-full text-lg font-bold ${
+                    contactIsRead
+                      ? "bg-gray-100 text-gray-700"
+                      : "bg-orange-100 text-orange-700"
+                  }`}
+                >
+                  {contactIsRead ? "✓ Read" : "● Unread"}
                 </div>
               </div>
             </div>
@@ -120,43 +103,43 @@ const ContactViewModal = ({
 
           {/* Message */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3">
-              Message
-            </h3>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Message</h3>
+            <div className="bg-gray-50 rounded-3xl p-8 border border-gray-200">
+              <p className="text-lg text-gray-800 leading-relaxed whitespace-pre-wrap">
                 {contact.message}
               </p>
             </div>
           </div>
         </div>
 
-        {/* Modal Footer */}
-        <div className="p-6 border-t border-gray-200 flex flex-col sm:flex-row gap-3">
-          <a
-            href={`mailto:${contact.email}`}
-            className="flex-1 bg-[#1E40AF] hover:bg-[#1E3A8A] text-white font-semibold py-3 rounded-lg transition-colors text-center"
-          >
-            Reply via Email
-          </a>
-          <button
-            onClick={() => onToggleStatus(contact.id)}
-            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 rounded-lg transition-colors"
-          >
-            Mark as {contactIsRead ? "Unread" : "Read"}
-          </button>
-          <button
-            onClick={handleDelete}
-            className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-lg transition-colors"
-          >
-            Delete
-          </button>
-          <button
-            onClick={onClose}
-            className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 rounded-lg transition-colors"
-          >
-            Close
-          </button>
+        {/* Action Bar */}
+        <div className="p-8 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-orange-50">
+          <div className="flex flex-wrap gap-4 justify-center">
+            <a
+              href={`mailto:${contact.email}?subject=Re: Your Inquiry - Khan Brothers Engineering`}
+              className="px-8 py-4 bg-gradient-to-r from-[#1E40AF] to-[#1E3A8A] hover:from-[#1E3A8A] hover:to-[#1E40AF] text-white font-bold rounded-2xl transition-all shadow-lg hover:shadow-2xl transform hover:scale-105"
+            >
+              Reply via Email
+            </a>
+            <button
+              onClick={() => onToggleStatus(contact.id)}
+              className="px-8 py-4 bg-orange-100 hover:bg-orange-200 text-orange-800 font-bold rounded-2xl transition-all shadow-md hover:shadow-xl"
+            >
+              Mark as {contactIsRead ? "Unread" : "Read"}
+            </button>
+            <button
+              onClick={handleDelete}
+              className="px-8 py-4 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-2xl transition-all shadow-md hover:shadow-xl"
+            >
+              Delete Message
+            </button>
+            <button
+              onClick={onClose}
+              className="px-8 py-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold rounded-2xl transition-all"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>

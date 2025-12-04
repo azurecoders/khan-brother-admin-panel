@@ -1,6 +1,4 @@
-// khan-brother-admin-panel/components/Admin.tsx
 "use client";
-
 import { useState, useEffect } from "react";
 import DashboardSidebar from "./DashboardSidebar";
 import { Menu, X, LogOut } from "lucide-react";
@@ -14,128 +12,157 @@ export default function Admin({ children }: AdminProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Simple demo login state (in real app, this comes from backend or cookies)
   useEffect(() => {
-    // For now, we assume user is logged in after visiting /auth and clicking Sign In
-    // In real version, we check localStorage or session
     const loggedIn = localStorage.getItem("kb-admin-loggedin") === "true";
     setIsLoggedIn(loggedIn);
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("kb-admin-loggedin");
-    setIsLoggedIn(false);
     window.location.href = "/login";
   };
 
-  // If not logged in → redirect to auth page
   if (!isLoggedIn) {
-    // Auto redirect to your beautiful auth page
     if (typeof window !== "undefined") {
-      window.location.href = "/auth";
+      window.location.href = "/login";
     }
     return null;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Desktop Sidebar */}
-      <div
-        className={`hidden lg:flex flex-col bg-gradient-to-b from-[#0F172A] to-[#1E293B] text-white transition-all duration-300 ${isSidebarOpen ? "w-64" : "w-20"
-          }`}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50 flex">
+      {/* Desktop Sidebar - Royal Blue Premium */}
+      <aside
+        className={`hidden lg:flex flex-col bg-primary text-white transition-all duration-500 ${
+          isSidebarOpen ? "w-80" : "w-24"
+        } shadow-2xl`}
       >
-        <div className="p-6 border-b border-white/10">
+        <div className="p-8 border-b border-white/10 bg-gradient-to-b from-black/20 to-transparent">
           <div className="flex items-center justify-between">
             <div
-              className={`flex items-center gap-3 ${!isSidebarOpen && "justify-center"
-                }`}
+              className={`flex items-center gap-4 ${
+                !isSidebarOpen && "justify-center"
+              }`}
             >
-              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-xl">KB</span>
+              <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center shadow-2xl ring-4 ring-orange-400/30">
+                <span className="text-white text-2xl font-bold">KB</span>
               </div>
               {isSidebarOpen && (
                 <div>
-                  <h1 className="text-xl font-bold">KB Admin</h1>
-                  <p className="text-xs text-blue-200">Khan Brothers E&S</p>
+                  <h1 className="text-2xl font-bold tracking-tight">
+                    Khan Brothers
+                  </h1>
+                  <p className="text-sm text-orange-200">
+                    Engineering & Solutions
+                  </p>
                 </div>
               )}
             </div>
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="text-white/70 hover:text-white transition-colors"
+              className="p-3 hover:bg-white/10 rounded-xl transition-all"
             >
-              {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+              {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
-          <DashboardSidebar isOpen={isSidebarOpen} />
+        <div className="flex-1 overflow-y-auto scrollbar-hide">
+          <DashboardSidebar
+            links={[
+              { id: "overview", label: "Overview" },
+              { id: "services", label: "Services" },
+              { id: "products", label: "Products" },
+              { id: "projects", label: "Projects" },
+              { id: "testimonials", label: "Testimonials" },
+              { id: "messages", label: "Messages" },
+              { id: "admins", label: "Administrators" },
+            ]}
+            activeLink={""}
+            onLinkChange={() => {}}
+            isSidebarOpen={isSidebarOpen}
+            onToggle={setIsSidebarOpen}
+          />
         </div>
 
-        <div className="p-4 border-t border-white/10">
+        <div className="p-6 border-t border-white/10">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-red-600 hover:bg-red-700 transition-colors text-white font-medium"
+            className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold rounded-2xl transition-all shadow-lg hover:shadow-2xl transform hover:scale-105"
           >
-            <LogOut size={18} />
+            <LogOut size={22} />
             {isSidebarOpen && "Logout"}
           </button>
         </div>
-      </div>
+      </aside>
 
-      {/* Mobile Header + Sidebar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white shadow-lg z-50">
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">KB</span>
-            </div>
-            <div>
-              <h1 className="text-lg font-bold text-gray-900">KB Admin</h1>
-              <p className="text-xs text-gray-500">Khan Brothers E&S</p>
-            </div>
+      {/* Mobile Header */}
+      <header className="lg:hidden fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-xl shadow-2xl z-50 px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center shadow-xl">
+            <span className="text-white text-xl font-bold">KB</span>
           </div>
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="text-gray-700"
-          >
-            {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
-          </button>
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">Khan Brothers</h1>
+            <p className="text-xs text-orange-600 font-bold uppercase tracking-widest">
+              Admin Panel
+            </p>
+          </div>
         </div>
-      </div>
-
-      {/* Mobile Sidebar Overlay */}
-      {isMobileMenuOpen && (
-        <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-40"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="p-3 bg-orange-100 hover:bg-orange-200 rounded-xl transition-all"
+        >
+          {isMobileMenuOpen ? (
+            <X size={28} className="text-orange-700" />
+          ) : (
+            <Menu size={28} className="text-orange-700" />
+          )}
+        </button>
+      </header>
 
       {/* Mobile Sidebar */}
-      <div
-        className={`lg:hidden fixed top-16 left-0 bottom-0 w-72 bg-gradient-to-b from-[#0F172A] to-[#1E293B] text-white z-50 transform transition-transform ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
-      >
-        <div className="p-4">
-          <DashboardSidebar isOpen={true} />
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-red-600 hover:bg-red-700 transition-colors text-white font-medium"
-          >
-            <LogOut size={20} />
-            Logout
-          </button>
-        </div>
-      </div>
+      {isMobileMenuOpen && (
+        <>
+          <div
+            className="lg:hidden fixed inset-0 bg-black/60 z-40"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          <aside className="lg:hidden fixed top-20 left-0 bottom-0 w-80 bg-primary text-white z-50 shadow-2xl">
+            <div className="p-6">
+              <DashboardSidebar
+                links={[
+                  { id: "overview", label: "Overview" },
+                  { id: "services", label: "Services" },
+                  { id: "products", label: "Products" },
+                  { id: "projects", label: "Projects" },
+                  { id: "testimonials", label: "Testimonials" },
+                  { id: "messages", label: "Messages" },
+                  { id: "admins", label: "Administrators" },
+                ]}
+                activeLink={""}
+                onLinkChange={() => {}}
+                isSidebarOpen={true}
+                onToggle={() => {}}
+              />
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-white/10">
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-2xl shadow-lg hover:shadow-2xl"
+              >
+                <LogOut size={22} />
+                Logout
+              </button>
+            </div>
+          </aside>
+        </>
+      )}
 
-      {/* Main Content Area */}
-      <div className="flex-1 lg:ml-0 pt-16 lg:pt-0">
-        <div className="p-6 lg:p-8 max-w-7xl mx-auto">{children}</div>
-      </div>
+      {/* Main Content */}
+      <main className="flex-1 pt-20 lg:pt-0">
+        <div className="p-6 md:p-8 lg:p-12 max-w-7xl mx-auto">{children}</div>
+      </main>
     </div>
   );
 }

@@ -28,6 +28,7 @@ export default function Dashboard() {
     { id: "testimonials", label: "Testimonials" },
     { id: "messages", label: "Messages" },
     { id: "admins", label: "Administrators" },
+    { id: "settings", label: "Settings" },
   ];
 
   const renderContent = () => {
