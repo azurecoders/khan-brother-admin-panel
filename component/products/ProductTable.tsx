@@ -49,7 +49,7 @@ const ProductTable = ({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[1000px]">
+        <table className="w-full min-w-[800px]">
           <thead className="bg-gray-100">
             <tr>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
@@ -65,9 +65,6 @@ const ProductTable = ({
                 Price
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                Images
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -75,7 +72,7 @@ const ProductTable = ({
           <tbody className="divide-y divide-gray-200">
             {products.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center py-8">
+                <td colSpan={5} className="text-center py-8">
                   <div className="text-4xl mb-2">📦</div>
                   <p className="text-gray-500">No products found</p>
                   {searchTerm && (
@@ -134,25 +131,6 @@ const ProductTable = ({
                     <span className="font-medium text-gray-900">
                       {product.price || "Price on request"}
                     </span>
-                  </td>
-
-                  {/* Images Column */}
-                  <td className="px-4 py-4">
-                    <div className="flex items-center gap-1">
-                      {product.images.slice(0, 3).map((img, i) => (
-                        <img
-                          key={i}
-                          src={img.imageUrl}
-                          alt=""
-                          className="w-8 h-8 rounded-full border-2 border-white object-cover"
-                        />
-                      ))}
-                      {product.images.length > 3 && (
-                        <span className="text-xs text-gray-500 ml-1">
-                          +{product.images.length - 3}
-                        </span>
-                      )}
-                    </div>
                   </td>
 
                   {/* Actions Column */}
