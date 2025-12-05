@@ -1,11 +1,10 @@
 import { ChangeEvent } from "react";
 import { X } from "lucide-react";
-import { Testimonial, TestimonialFormData } from "@/types/testimonial";
 
 interface TestimonialModalProps {
   isOpen: boolean;
-  editingTestimonial: Testimonial | null;
-  formData: TestimonialFormData;
+  editingTestimonial: any;
+  formData: any;
   loading: boolean;
   onClose: () => void;
   onSubmit: (e: React.FormEvent) => void;
@@ -26,24 +25,25 @@ const TestimonialModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in duration-300">
-        <div className="bg-gradient-to-r from-[#1E40AF] to-[#1E3A8A] px-8 py-6 text-white flex items-center justify-between">
-          <h2 className="text-2xl font-bold">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between bg-gradient-to-r from-[#1E40AF] to-[#1E3A8A] px-4 sm:px-6 py-4 text-white rounded-t-2xl">
+          <h2 className="text-lg sm:text-xl font-bold">
             {editingTestimonial ? "Edit Testimonial" : "Add New Testimonial"}
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white/20 rounded-xl transition-all"
+            className="p-1 hover:bg-white/20 rounded-lg transition-colors"
           >
-            <X size={24} />
+            <X size={20} />
           </button>
         </div>
 
-        <form onSubmit={onSubmit} className="p-8 space-y-8">
-          <div className="grid md:grid-cols-2 gap-8">
+        <form onSubmit={onSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Client Name <span className="text-orange-600">*</span>
               </label>
               <input
@@ -52,12 +52,12 @@ const TestimonialModal = ({
                 value={formData.name}
                 onChange={onInputChange}
                 required
-                className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-sm"
                 placeholder="e.g., Ahmed Khan"
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Company & Designation <span className="text-orange-600">*</span>
               </label>
               <input
@@ -66,14 +66,14 @@ const TestimonialModal = ({
                 value={formData.designation}
                 onChange={onInputChange}
                 required
-                className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-sm"
                 placeholder="e.g., Siemens Pakistan - Project Manager"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Testimonial Message <span className="text-orange-600">*</span>
             </label>
             <textarea
@@ -81,29 +81,25 @@ const TestimonialModal = ({
               value={formData.message}
               onChange={onInputChange}
               required
-              rows={8}
-              className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all resize-none"
-              placeholder="Share what the client loved about working with Khan Brothers..."
+              rows={5}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all resize-none text-sm"
+              placeholder="Share what the client loved..."
             />
           </div>
 
-          <div className="flex gap-4 pt-6">
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-5 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-105 disabled:opacity-70"
+              className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 rounded-lg transition-all shadow-md hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed text-sm sm:text-base"
             >
-              {loading
-                ? "Saving..."
-                : editingTestimonial
-                ? "Update Testimonial"
-                : "Create Testimonial"}
+              {loading ? "Saving..." : editingTestimonial ? "Update" : "Create"}{" "}
+              Testimonial
             </button>
             <button
               type="button"
               onClick={onClose}
-              disabled={loading}
-              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-5 rounded-2xl transition-all"
+              className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 rounded-lg transition-colors text-sm sm:text-base"
             >
               Cancel
             </button>

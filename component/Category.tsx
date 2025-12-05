@@ -42,46 +42,40 @@ const categoryAPI = {
   },
   create: async (name: string): Promise<Category> => {
     const data = await graphqlRequest(
-      `
-      mutation CreateCategory($name: String!) {
+      `mutation CreateCategory($name: String!) {
         createCategory(name: $name) {
           id
           name
         }
-      }
-    `,
+      }`,
       { name }
     );
     return data.createCategory;
   },
   update: async (id: number, name: string): Promise<Category> => {
     const data = await graphqlRequest(
-      `
-      mutation UpdateCategory($id: ID!, $name: String) {
+      `mutation UpdateCategory($id: ID!, $name: String) {
         updateCategory(id: $id, name: $name) {
           id
           name
         }
-      }
-    `,
+      }`,
       { id: id.toString(), name }
     );
     return data.updateCategory;
   },
   delete: async (id: number): Promise<number> => {
     const data = await graphqlRequest(
-      `
-      mutation DeleteCategory($id: ID!) {
+      `mutation DeleteCategory($id: ID!) {
         deleteCategory(id: $id)
-      }
-    `,
+      }`,
       { id: id.toString() }
     );
     return parseInt(data.deleteCategory);
   },
 };
 
-// Premium Search Bar
+// Compact Search Bar
 const SearchBar = ({
   searchTerm,
   onSearchChange,
@@ -90,23 +84,23 @@ const SearchBar = ({
   onSearchChange: (value: string) => void;
 }) => {
   return (
-    <div className="relative w-full max-w-md">
+    <div className="relative w-full">
       <Search
-        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-        size={20}
+        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+        size={18}
       />
       <input
         type="text"
         placeholder="Search categories..."
         value={searchTerm}
         onChange={(e) => onSearchChange(e.target.value)}
-        className="w-full pl-12 pr-5 py-4 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 shadow-sm hover:shadow-md text-gray-800 placeholder-gray-400"
+        className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-sm"
       />
     </div>
   );
 };
 
-// Premium Modal
+// Compact Modal
 const CategoryFormModal = ({
   isOpen,
   category,
@@ -119,6 +113,7 @@ const CategoryFormModal = ({
   onSubmit: (data: { name: string }) => void;
 }) => {
   const [name, setName] = useState("");
+
   useEffect(() => {
     if (category) setName(category.name);
     else setName("");
@@ -133,36 +128,36 @@ const CategoryFormModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in duration-300">
-        <div className="bg-gradient-to-r from-[#1E40AF] to-[#1E3A8A] px-8 py-6 text-white">
-          <h2 className="text-2xl font-bold">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+        <div className="bg-gradient-to-r from-[#1E40AF] to-[#1E3A8A] px-6 py-4 text-white rounded-t-2xl">
+          <h2 className="text-xl font-bold">
             {category ? "Edit Category" : "Add New Category"}
           </h2>
         </div>
-        <div className="p-8 space-y-6">
+        <div className="p-6 space-y-5">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Category Title <span className="text-orange-600">*</span>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Category Name <span className="text-orange-600">*</span>
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all duration-300 text-gray-800"
-              placeholder="e.g., Electrical Equipment"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+              placeholder="e.g., Electrical Systems"
             />
           </div>
-          <div className="flex gap-4 pt-4">
+          <div className="flex gap-3">
             <button
               onClick={handleSubmit}
-              className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-4 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 rounded-lg transition-all shadow-md hover:shadow-lg"
             >
-              {category ? "Update Category" : "Add Category"}
+              {category ? "Update" : "Add"} Category
             </button>
             <button
               onClick={onClose}
-              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-4 rounded-2xl transition-all duration-300"
+              className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 rounded-lg transition-all"
             >
               Cancel
             </button>
@@ -173,7 +168,7 @@ const CategoryFormModal = ({
   );
 };
 
-// Premium Table Row
+// Compact Row
 const CategoryRow = ({
   category,
   onEdit,
@@ -184,51 +179,40 @@ const CategoryRow = ({
   onDelete: (id: number) => void;
 }) => {
   return (
-    <tr className="hover:bg-gradient-to-r hover:from-orange-50/50 hover:to-blue-50/50 transition-all duration-300 border-b border-gray-100">
-      <td className="px-6 py-6">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-[#1E40AF] to-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
-            <Tag size={24} className="text-white" />
-          </div>
-          <div>
-            <h3 className="font-bold text-gray-900 text-lg">{category.name}</h3>
-            {category.createdAt && (
-              <p className="text-sm text-gray-500">
-                Created: {new Date(category.createdAt).toLocaleDateString()}
-              </p>
-            )}
-          </div>
+    <div className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-gray-100">
+      <div className="flex items-center gap-4 flex-1 min-w-0">
+        <div className="w-10 h-10 bg-gradient-to-br from-[#1E40AF] to-orange-500 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
+          <Tag size={20} className="text-white" />
         </div>
-      </td>
-      <td className="px-6 py-6">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => onEdit(category)}
-            className="p-3 bg-blue-50 hover:bg-blue-100 text-[#1E40AF] rounded-xl transition-all duration-300 shadow-md hover:shadow-lg group"
-            title="Edit"
-          >
-            <Edit
-              size={18}
-              className="group-hover:scale-110 transition-transform"
-            />
-          </button>
-          <button
-            onClick={() => onDelete(category.id)}
-            className="p-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg group"
-            title="Delete"
-          >
-            <Trash2
-              size={18}
-              className="group-hover:scale-110 transition-transform"
-            />
-          </button>
+        <div className="min-w-0">
+          <h3 className="font-semibold text-gray-900 truncate">
+            {category.name}
+          </h3>
+          {category.createdAt && (
+            <p className="text-xs text-gray-500">
+              {new Date(category.createdAt).toLocaleDateString()}
+            </p>
+          )}
         </div>
-      </td>
-    </tr>
+      </div>
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <button
+          onClick={() => onEdit(category)}
+          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+        >
+          <Edit size={16} />
+        </button>
+        <button
+          onClick={() => onDelete(category.id)}
+          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+        >
+          <Trash2 size={16} />
+        </button>
+      </div>
+    </div>
   );
 };
 
-// Main Component
 const CategoryManagement = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -248,7 +232,7 @@ const CategoryManagement = () => {
       const data = await categoryAPI.fetchAll();
       setCategories(data);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Failed to load categories");
     } finally {
       setLoading(false);
     }
@@ -283,12 +267,12 @@ const CategoryManagement = () => {
   };
 
   const handleDeleteCategory = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this category?")) return;
+    if (!confirm("Delete this category?")) return;
     try {
       await categoryAPI.delete(id);
       setCategories((prev) => prev.filter((c) => c.id !== id));
     } catch (err: any) {
-      alert("Failed to delete category: " + err.message);
+      alert("Failed to delete: " + err.message);
     }
   };
 
@@ -298,96 +282,73 @@ const CategoryManagement = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50 p-4 md:p-8 lg:p-12">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="p-4 md:p-6 lg:p-8">
+      <div className="max-w-5xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center md:text-left">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
             Categories Management
           </h1>
-          <p className="text-xl text-gray-600">
-            Organize and manage your content categories
-          </p>
+          <p className="text-gray-600">Organize your content categories</p>
         </div>
 
+        {/* Error */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-2xl shadow-md">
+          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl">
             <strong>Error:</strong> {error}
           </div>
         )}
 
-        {/* Controls */}
-        <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/50 p-6 md:p-8">
-          <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
+        {/* Filters Card */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5">
+          <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
             <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
             <button
               onClick={() => setIsModalOpen(true)}
-              className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-105 flex items-center gap-3 whitespace-nowrap"
+              className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 whitespace-nowrap"
             >
-              <Plus size={24} />
-              Add New Category
+              <Plus size={20} />
+              Add Category
             </button>
           </div>
         </div>
 
         {/* Table Card */}
-        <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 overflow-hidden">
-          <div className="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-[#1E40AF]/5 to-orange-500/5">
-            <h2 className="text-2xl font-bold text-gray-900">All Categories</h2>
-            <p className="text-gray-600 mt-1">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
+            <h2 className="text-lg font-bold text-gray-900">All Categories</h2>
+            <p className="text-sm text-gray-600">
               Total:{" "}
-              <span className="font-bold text-orange-600">
+              <span className="font-semibold text-orange-600">
                 {filteredCategories.length}
-              </span>{" "}
-              categories
+              </span>
             </p>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gradient-to-r from-[#1E40AF]/10 to-orange-500/10">
-                <tr>
-                  <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">
-                    Category
-                  </th>
-                  <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {loading ? (
-                  Array(5)
-                    .fill(0)
-                    .map((_, i) => (
-                      <tr key={i}>
-                        <td colSpan={2} className="px-8 py-10">
-                          <div className="bg-gray-200 animate-pulse h-16 rounded-2xl"></div>
-                        </td>
-                      </tr>
-                    ))
-                ) : filteredCategories.length === 0 ? (
-                  <tr>
-                    <td colSpan={2} className="text-center py-20 text-gray-500">
-                      <div className="text-6xl mb-4">📂</div>
-                      <p className="text-xl">No categories found</p>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredCategories.map((category) => (
-                    <CategoryRow
-                      key={category.id}
-                      category={category}
-                      onEdit={openEditModal}
-                      onDelete={handleDeleteCategory}
-                    />
-                  ))
-                )}
-              </tbody>
-            </table>
+          <div className="divide-y divide-gray-100">
+            {loading ? (
+              <div className="p-12 text-center text-gray-500">
+                <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-orange-500 border-t-transparent"></div>
+                <p className="mt-4">Loading categories...</p>
+              </div>
+            ) : filteredCategories.length === 0 ? (
+              <div className="p-12 text-center text-gray-500">
+                <p className="text-lg">No categories found</p>
+              </div>
+            ) : (
+              filteredCategories.map((category) => (
+                <CategoryRow
+                  key={category.id}
+                  category={category}
+                  onEdit={openEditModal}
+                  onDelete={handleDeleteCategory}
+                />
+              ))
+            )}
           </div>
         </div>
 
+        {/* Modal */}
         <CategoryFormModal
           isOpen={isModalOpen}
           category={editingCategory}

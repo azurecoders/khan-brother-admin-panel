@@ -1,13 +1,11 @@
 import { Eye, Trash2, Mail, MailOpen, Phone } from "lucide-react";
-import { Contact } from "@/types/contact";
 
 interface ContactTableProps {
-  contacts: Contact[];
+  contacts: any[];
   loading: boolean;
-  searchTerm: string;
   unreadCount: number;
   isRead: (id: string) => boolean;
-  onView: (contact: Contact) => void;
+  onView: (contact: any) => void;
   onDelete: (id: string) => void;
   onToggleStatus: (id: string) => void;
 }
@@ -15,7 +13,6 @@ interface ContactTableProps {
 const ContactTable = ({
   contacts,
   loading,
-  searchTerm,
   unreadCount,
   isRead,
   onView,
@@ -23,121 +20,107 @@ const ContactTable = ({
   onToggleStatus,
 }: ContactTableProps) => {
   const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this message?")) {
-      onDelete(id);
-    }
+    if (confirm("Delete this message?")) onDelete(id);
   };
 
   if (loading) {
     return (
-      <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 p-16 text-center">
-        <div className="inline-flex items-center gap-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent"></div>
-          <span className="text-xl text-gray-700">Loading messages...</span>
-        </div>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-12 text-center">
+        <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-orange-500 border-t-transparent"></div>
+        <p className="mt-4 text-gray-600">Loading messages...</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 overflow-hidden">
-      <div className="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-[#1E40AF]/5 to-orange-500/5">
-        <h2 className="text-2xl font-bold text-gray-900">Contact Inquiries</h2>
-        <p className="text-gray-600 mt-1">
-          Total: <span className="font-bold">{contacts.length}</span> | Unread:{" "}
-          <span className="font-bold text-orange-600">{unreadCount}</span>
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
+        <h2 className="text-lg font-bold text-gray-900">Contact Inquiries</h2>
+        <p className="text-sm text-gray-600">
+          Total: <span className="font-semibold">{contacts.length}</span> |
+          Unread:{" "}
+          <span className="font-semibold text-orange-600">{unreadCount}</span>
         </p>
       </div>
 
       <div className="divide-y divide-gray-100">
         {contacts.length === 0 ? (
-          <div className="text-center py-20 text-gray-500">
-            <div className="text-6xl mb-4">📭</div>
-            <p className="text-xl">No messages yet</p>
-            <p className="text-gray-600">New inquiries will appear here</p>
+          <div className="p-12 text-center text-gray-500">
+            <p className="text-lg">No messages yet</p>
           </div>
         ) : (
           contacts.map((contact) => {
             const contactIsRead = isRead(contact.id);
+            const dateTime = new Date(contact.createdAt || Date.now());
+            const date = dateTime.toLocaleDateString();
+            const time = dateTime.toLocaleTimeString([], {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+            }); // ← Now in 12-hour format with AM/PM
+
             return (
-              <div
-                key={contact.id}
-                className={`p-8 hover:bg-gradient-to-r hover:from-orange-50/30 hover:to-blue-50/30 transition-all duration-300 ${
-                  !contactIsRead
-                    ? "bg-blue-50/20 border-l-4 border-orange-500"
-                    : ""
-                }`}
-              >
-                <div className="flex items-start justify-between gap-8">
-                  <div className="flex-1 flex items-start gap-5">
+              <div key={contact.id} className="p-5 hover:bg-gray-50">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-4 flex-1 min-w-0">
                     <div
-                      className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg ${
-                        !contactIsRead
-                          ? "bg-gradient-to-br from-orange-500 to-orange-600"
-                          : "bg-gray-100"
+                      className={`w-12 h-12 rounded-full flex items-center justify-center shadow-md flex-shrink-0 ${
+                        !contactIsRead ? "bg-orange-500" : "bg-gray-200"
                       }`}
                     >
                       {!contactIsRead ? (
-                        <Mail size={28} className="text-white" />
+                        <Mail size={24} className="text-white" />
                       ) : (
-                        <MailOpen size={28} className="text-gray-600" />
+                        <MailOpen size={24} className="text-gray-600" />
                       )}
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-4 mb-2">
-                        <h3 className="text-xl font-bold text-gray-900">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-gray-900">
                           {contact.name}
                         </h3>
                         <span className="text-sm text-gray-500">
                           • {contact.email}
                         </span>
                       </div>
-                      <p className="text-gray-700 leading-relaxed">
+                      <p className="text-sm text-gray-700 line-clamp-2">
                         {contact.message}
                       </p>
-                      <div className="flex items-center gap-4 mt-4 text-sm">
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Phone size={16} className="text-orange-600" />
-                          <span>{contact.phone}</span>
+                      <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                        <div className="flex items-center gap-1">
+                          <Phone size={14} className="text-orange-600" />
+                          {contact.phone}
                         </div>
-                        <span className="text-gray-400">•</span>
-                        <span className="text-gray-500">
-                          {new Date(
-                            contact.createdAt || Date.now()
-                          ).toLocaleString()}
-                        </span>
+                        <span>•</span>
+                        <span>
+                          {date} at {time}
+                        </span>{" "}
+                        {/* ← Now shows 08:47 PM */}
                       </div>
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     <button
                       onClick={() => onToggleStatus(contact.id)}
-                      className={`px-4 py-2 rounded-full font-medium text-sm transition-all ${
+                      className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
                         !contactIsRead
-                          ? "bg-orange-100 text-orange-800 hover:bg-orange-200"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          ? "bg-orange-100 text-orange-700"
+                          : "bg-gray-100 text-gray-600"
                       }`}
                     >
-                      {!contactIsRead ? "Mark as Read" : "Mark as Unread"}
+                      {!contactIsRead ? "Mark Read" : "Unread"}
                     </button>
                     <button
                       onClick={() => onView(contact)}
-                      className="p-3 bg-blue-50 hover:bg-blue-100 text-[#1E40AF] rounded-xl transition-all shadow-md hover:shadow-lg group"
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
                     >
-                      <Eye
-                        size={18}
-                        className="group-hover:scale-110 transition-transform"
-                      />
+                      <Eye size={16} />
                     </button>
                     <button
                       onClick={() => handleDelete(contact.id)}
-                      className="p-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-all shadow-md hover:shadow-lg group"
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
                     >
-                      <Trash2
-                        size={18}
-                        className="group-hover:scale-110 transition-transform"
-                      />
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 </div>

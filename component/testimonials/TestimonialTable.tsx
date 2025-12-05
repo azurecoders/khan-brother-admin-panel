@@ -1,104 +1,96 @@
-import { Edit, Trash2, Quote } from "lucide-react";
-import { Testimonial } from "@/types/testimonial";
-import StarRating from "./StarRating";
+import { Edit, Trash2 } from "lucide-react";
 
 interface TestimonialTableProps {
-  testimonials: Testimonial[];
+  testimonials: any[];
   loading: boolean;
-  searchTerm: string;
-  onEdit: (testimonial: Testimonial) => void;
+  onEdit: (testimonial: any) => void;
   onDelete: (id: string) => void;
 }
 
 const TestimonialTable = ({
   testimonials,
   loading,
-  searchTerm,
   onEdit,
   onDelete,
 }: TestimonialTableProps) => {
   const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this testimonial?")) {
+    if (confirm("Are you sure you want to delete this testimonial?"))
       onDelete(id);
-    }
   };
 
   if (loading) {
     return (
-      <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 p-16 text-center">
-        <div className="inline-flex items-center gap-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent"></div>
-          <span className="text-xl text-gray-700">Loading testimonials...</span>
-        </div>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 sm:p-12 text-center">
+        <div className="inline-block animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 border-4 border-orange-500 border-t-transparent"></div>
+        <p className="mt-4 text-gray-600 text-sm sm:text-base">
+          Loading testimonials...
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 overflow-hidden">
-      <div className="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-[#1E40AF]/5 to-orange-500/5">
-        <h2 className="text-2xl font-bold text-gray-900">
-          Client Testimonials
-        </h2>
-        <p className="text-gray-600 mt-1">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+      {/* Table Header */}
+      <div className="px-4 sm:px-6 py-4 border-b border-gray-100 bg-gray-50">
+        <h2 className="text-lg font-bold text-gray-900">Client Testimonials</h2>
+        <p className="text-sm text-gray-600">
           Total:{" "}
-          <span className="font-bold text-orange-600">
-            {testimonials.length}
-          </span>{" "}
-          reviews
+          <span className="font-semibold text-orange-600">
+            {testimonials.length} review{testimonials.length !== 1 ? "s" : ""}
+          </span>
         </p>
       </div>
 
       <div className="divide-y divide-gray-100">
         {testimonials.length === 0 ? (
-          <div className="text-center py-20 text-gray-500">
-            <div className="text-6xl mb-4">No testimonials yet</div>
-            <p className="text-xl">Start building trust with client stories</p>
+          <div className="p-8 sm:p-12 text-center text-gray-500">
+            <p className="text-base sm:text-lg">No testimonials found</p>
+            <p className="text-sm text-gray-400 mt-2">
+              {searchTerm
+                ? "Try a different search term"
+                : "Add your first testimonial"}
+            </p>
           </div>
         ) : (
           testimonials.map((testimonial) => (
             <div
               key={testimonial.id}
-              className="p-8 hover:bg-gradient-to-r hover:from-orange-50/30 hover:to-blue-50/30 transition-all duration-300"
+              className="p-4 sm:p-5 hover:bg-gray-50 transition-colors"
             >
-              <div className="flex items-start justify-between gap-8">
-                <div className="flex-1">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-[#1E40AF] to-orange-500 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
-                      {testimonial.name.charAt(0)}
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-900">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#1E40AF] to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-md flex-shrink-0">
+                    {testimonial.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                      <h3 className="font-semibold text-gray-900 text-sm sm:text-base">
                         {testimonial.name}
                       </h3>
-                      <p className="text-orange-600 font-medium">
+                      <p className="text-xs sm:text-sm text-orange-600 font-medium">
                         {testimonial.designation}
                       </p>
                     </div>
+                    <blockquote className="mt-2 text-gray-700 italic text-xs sm:text-sm line-clamp-3">
+                      "{testimonial.message}"
+                    </blockquote>
                   </div>
-                  <blockquote className="text-lg text-gray-700 italic leading-relaxed pl-6 border-l-4 border-orange-500">
-                    "{testimonial.message}"
-                  </blockquote>
                 </div>
-
-                <div className="flex items-center gap-4">
+                <div className="flex items-center justify-end gap-2 sm:gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100 sm:border-none">
                   <button
                     onClick={() => onEdit(testimonial)}
-                    className="p-3 bg-blue-50 hover:bg-blue-100 text-[#1E40AF] rounded-xl transition-all shadow-md hover:shadow-lg group"
+                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    aria-label="Edit testimonial"
                   >
-                    <Edit
-                      size={18}
-                      className="group-hover:scale-110 transition-transform"
-                    />
+                    <Edit size={16} />
                   </button>
                   <button
                     onClick={() => handleDelete(testimonial.id)}
-                    className="p-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-all shadow-md hover:shadow-lg group"
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    aria-label="Delete testimonial"
                   >
-                    <Trash2
-                      size={18}
-                      className="group-hover:scale-110 transition-transform"
-                    />
+                    <Trash2 size={16} />
                   </button>
                 </div>
               </div>

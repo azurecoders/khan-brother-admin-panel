@@ -1,4 +1,4 @@
-import { Edit, Trash2, MapPin, FolderOpen } from "lucide-react";
+import { Edit, Trash2, MapPin } from "lucide-react";
 import { Project } from "@/types/project";
 
 interface ProjectTableProps {
@@ -24,113 +24,134 @@ const ProjectTable = ({
 
   if (loading) {
     return (
-      <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 p-16 text-center">
-        <div className="inline-flex items-center gap-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent"></div>
-          <span className="text-xl text-gray-700">Loading projects...</span>
+      <div className="bg-white rounded-lg shadow border border-gray-200 p-8 text-center">
+        <div className="inline-flex items-center gap-3">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-orange-500 border-t-transparent"></div>
+          <span className="text-gray-700">Loading projects...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 overflow-hidden">
-      <div className="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-[#1E40AF]/5 to-orange-500/5">
-        <h2 className="text-2xl font-bold text-gray-900">All Projects</h2>
-        <p className="text-gray-600 mt-1">
-          Total:{" "}
-          <span className="font-bold text-orange-600">{projects.length}</span>{" "}
-          projects
-        </p>
+    <div className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+      <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <h2 className="text-lg font-semibold text-gray-900">All Projects</h2>
+          <p className="text-sm text-gray-600">
+            Total:{" "}
+            <span className="font-medium text-orange-600">
+              {projects.length}
+            </span>{" "}
+            projects
+          </p>
+        </div>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-gradient-to-r from-[#1E40AF]/10 to-orange-500/10">
+        <table className="w-full min-w-[1000px]">
+          <thead className="bg-gray-100">
             <tr>
-              <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                 Project
               </th>
-              <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                 Category
               </th>
-              <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Description
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                 Location
               </th>
-              <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-200">
             {projects.length === 0 ? (
               <tr>
-                <td colSpan={4} className="text-center py-20 text-gray-500">
-                  <div className="text-6xl mb-4">No projects found</div>
-                  <p className="text-xl">
-                    Start showcasing your engineering legacy
-                  </p>
+                <td colSpan={5} className="text-center py-8">
+                  <div className="text-4xl mb-2">🏗️</div>
+                  <p className="text-gray-500">No projects found</p>
+                  {searchTerm && (
+                    <p className="text-sm text-gray-400 mt-1">
+                      Try a different search term
+                    </p>
+                  )}
                 </td>
               </tr>
             ) : (
               projects.map((project) => (
                 <tr
                   key={project.id}
-                  className="hover:bg-gradient-to-r hover:from-orange-50/50 hover:to-blue-50/50 transition-all duration-300"
+                  className="hover:bg-gray-50 transition-colors"
                 >
-                  <td className="px-8 py-6">
-                    <div className="flex items-center gap-5">
+                  {/* Project Column - Separated from Description */}
+                  <td className="px-4 py-4">
+                    <div className="flex items-center gap-3">
                       {project.imageUrl ? (
                         <img
                           src={project.imageUrl}
                           alt={project.title}
-                          className="w-20 h-20 rounded-2xl object-cover shadow-lg"
+                          className="w-10 h-10 rounded-lg object-cover border border-gray-200"
                         />
                       ) : (
-                        <div className="w-20 h-20 bg-gradient-to-br from-[#1E40AF] to-orange-500 rounded-2xl flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+                        <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
                           {project.title[0]}
                         </div>
                       )}
-                      <div>
-                        <h3 className="font-bold text-gray-900 text-xl">
+                      <div className="min-w-0">
+                        <h3 className="font-medium text-gray-900 truncate">
                           {project.title}
                         </h3>
-                        <p className="text-gray-600 line-clamp-2 mt-1">
-                          {project.description}
-                        </p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-8 py-6">
-                    <span className="px-4 py-2 bg-orange-100 text-orange-800 rounded-full text-sm font-semibold">
+
+                  {/* Category Column */}
+                  <td className="px-4 py-4">
+                    <span className="inline-flex px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-medium">
                       {project.category}
                     </span>
                   </td>
-                  <td className="px-8 py-6">
-                    <div className="flex items-center gap-2 text-gray-700">
-                      <MapPin size={18} className="text-orange-600" />
-                      <span className="font-medium">{project.location}</span>
+
+                  {/* Description Column - Now separate from Project Name */}
+                  <td className="px-4 py-4">
+                    <div className="max-w-[250px]">
+                      <p className="text-gray-700 text-sm line-clamp-2">
+                        {project.description}
+                      </p>
                     </div>
                   </td>
-                  <td className="px-8 py-6">
-                    <div className="flex items-center gap-3">
+
+                  {/* Location Column */}
+                  <td className="px-4 py-4">
+                    <div className="flex items-center gap-2">
+                      <MapPin size={16} className="text-orange-600" />
+                      <span className="text-sm text-gray-700 truncate max-w-[150px]">
+                        {project.location}
+                      </span>
+                    </div>
+                  </td>
+
+                  {/* Actions Column */}
+                  <td className="px-4 py-4">
+                    <div className="flex items-center gap-2">
                       <button
                         onClick={() => onEdit(project)}
-                        className="p-3 bg-blue-50 hover:bg-blue-100 text-[#1E40AF] rounded-xl transition-all shadow-md hover:shadow-lg group"
+                        className="p-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-colors"
+                        title="Edit"
                       >
-                        <Edit
-                          size={18}
-                          className="group-hover:scale-110 transition-transform"
-                        />
+                        <Edit size={16} />
                       </button>
                       <button
                         onClick={() => handleDelete(project.id)}
-                        className="p-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-all shadow-md hover:shadow-lg group"
+                        className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
+                        title="Delete"
                       >
-                        <Trash2
-                          size={18}
-                          className="group-hover:scale-110 transition-transform"
-                        />
+                        <Trash2 size={16} />
                       </button>
                     </div>
                   </td>

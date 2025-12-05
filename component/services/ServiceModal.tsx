@@ -1,5 +1,5 @@
-import { ChangeEvent } from "react";
-import { Upload, X, Plus, Link, ImageIcon } from "lucide-react";
+import { ChangeEvent, useState } from "react";
+import { Upload, X, Plus, Link } from "lucide-react";
 import { Service, ServiceFormData } from "@/types/service";
 
 interface Category {
@@ -42,6 +42,8 @@ const ServiceModal = ({
   onAddSubService,
   onRemoveSubService,
 }: ServiceModalProps) => {
+  const [urlInput, setUrlInput] = useState("");
+
   if (!isOpen) return null;
 
   const handleSubServiceKeyDown = (
@@ -57,27 +59,50 @@ const ServiceModal = ({
     }
   };
 
+  // FIXED: Implemented URL validation logic from ProjectModal
+  const handleApplyUrl = () => {
+    if (urlInput.trim()) {
+      try {
+        new URL(urlInput);
+        // Update the form data with the validated URL
+        onIconUrlChange({
+          target: { value: urlInput.trim() },
+        } as ChangeEvent<HTMLInputElement>);
+        setUrlInput("");
+      } catch {
+        alert("Please enter a valid image URL");
+      }
+    }
+  };
+
+  const handleUrlKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleApplyUrl();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in duration-300">
-        <div className="bg-gradient-to-r from-[#1E40AF] to-[#1E3A8A] px-8 py-6 text-white flex items-center justify-between">
-          <h2 className="text-2xl font-bold">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="bg-blue-900 px-6 py-4 rounded-t-xl text-white flex items-center justify-between">
+          <h2 className="text-xl font-bold">
             {editingService ? "Edit Service" : "Add New Service"}
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white/20 rounded-xl transition-all"
+            className="p-1 hover:bg-white/20 rounded transition-colors"
           >
             <X size={24} />
           </button>
         </div>
 
-        <form onSubmit={onSubmit} className="p-8 space-y-8">
+        <form onSubmit={onSubmit} className="p-6 space-y-6">
           {/* Title & Category */}
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Service Title <span className="text-orange-600">*</span>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Service Title <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -85,13 +110,14 @@ const ServiceModal = ({
                 value={formData.name}
                 onChange={onInputChange}
                 required
-                className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all duration-300"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 placeholder="e.g., Electrical Installation"
               />
             </div>
+
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Category <span className="text-orange-600">*</span>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Category <span className="text-red-500">*</span>
               </label>
               <select
                 name="category"
@@ -99,7 +125,7 @@ const ServiceModal = ({
                 onChange={onInputChange}
                 required
                 disabled={categoriesLoading}
-                className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all duration-300 disabled:opacity-50"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 disabled:opacity-50"
               >
                 <option value="">Select Category</option>
                 {categories.map((c) => (
@@ -113,31 +139,31 @@ const ServiceModal = ({
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Description <span className="text-orange-600">*</span>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Description <span className="text-red-500">*</span>
             </label>
             <textarea
               name="description"
               value={formData.description}
               onChange={onInputChange}
               required
-              rows={4}
-              className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all duration-300 resize-none"
+              rows={3}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none"
               placeholder="Describe your service in detail..."
             />
           </div>
 
           {/* Sub Services */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Sub Services (Optional)
             </label>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <input
                 type="text"
                 placeholder="Type and press Enter"
                 onKeyDown={handleSubServiceKeyDown}
-                className="flex-1 px-5 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all"
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
               />
               <button
                 type="button"
@@ -150,25 +176,25 @@ const ServiceModal = ({
                     input.value = "";
                   }
                 }}
-                className="px-6 py-4 bg-orange-100 hover:bg-orange-200 rounded-2xl transition-all"
+                className="px-4 py-3 bg-orange-100 hover:bg-orange-200 rounded-lg transition-colors"
               >
-                <Plus size={24} />
+                <Plus size={20} />
               </button>
             </div>
             {formData.subServices.length > 0 && (
-              <div className="flex flex-wrap gap-3 mt-4">
+              <div className="flex flex-wrap gap-2 mt-3">
                 {formData.subServices.map((sub, i) => (
                   <span
                     key={i}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 text-orange-800 rounded-full text-sm font-medium"
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm"
                   >
                     {sub}
                     <button
                       type="button"
                       onClick={() => onRemoveSubService(i)}
-                      className="hover:text-orange-600"
+                      className="hover:text-orange-600 ml-1"
                     >
-                      <X size={16} />
+                      <X size={14} />
                     </button>
                   </span>
                 ))}
@@ -176,103 +202,126 @@ const ServiceModal = ({
             )}
           </div>
 
-          {/* Icon Upload / URL */}
+          {/* Icon Upload / URL - FIXED: Updated with URL validation */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-3">
               Service Icon{" "}
-              {!editingService && <span className="text-orange-600">*</span>}
+              {!editingService && <span className="text-red-500">*</span>}
             </label>
-            <div className="flex gap-4 mb-6">
+
+            {/* Icon Selection Tabs */}
+            <div className="flex border-b border-gray-200 mb-4">
               <button
                 type="button"
                 onClick={() => onIconInputTypeChange("file")}
-                className={`flex-1 py-4 rounded-2xl border-2 font-medium transition-all ${
+                className={`px-4 py-2 font-medium text-sm transition-colors ${
                   formData.iconInputType === "file"
-                    ? "border-orange-500 bg-orange-50 text-orange-700"
-                    : "border-gray-300 hover:border-gray-400"
+                    ? "border-b-2 border-orange-500 text-orange-600"
+                    : "text-gray-500 hover:text-gray-700"
                 }`}
               >
-                <ImageIcon className="inline mr-2" size={20} /> Upload File
+                Upload Image
               </button>
               <button
                 type="button"
                 onClick={() => onIconInputTypeChange("url")}
-                className={`flex-1 py-4 rounded-2xl border-2 font-medium transition-all ${
+                className={`px-4 py-2 font-medium text-sm transition-colors ${
                   formData.iconInputType === "url"
-                    ? "border-orange-500 bg-orange-50 text-orange-700"
-                    : "border-gray-300 hover:border-gray-400"
+                    ? "border-b-2 border-orange-500 text-orange-600"
+                    : "text-gray-500 hover:text-gray-700"
                 }`}
               >
-                <Link className="inline mr-2" size={20} /> Enter URL
+                Enter URL
               </button>
             </div>
 
             {formData.iconInputType === "file" && (
-              <div className="border-2 border-dashed border-gray-300 rounded-3xl p-10 text-center hover:border-orange-500 transition-all cursor-pointer">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={onImageChange}
-                  className="hidden"
-                  id="icon-upload"
-                />
-                <label htmlFor="icon-upload" className="cursor-pointer">
-                  {formData.iconPreview ? (
-                    <div>
-                      <img
-                        src={formData.iconPreview}
-                        alt="Preview"
-                        className="w-28 h-28 mx-auto rounded-2xl object-cover shadow-lg"
-                      />
-                      <p className="mt-4 text-sm text-gray-600">
-                        Click to change icon
-                      </p>
-                    </div>
-                  ) : (
-                    <div>
-                      <Upload
-                        size={48}
-                        className="mx-auto text-gray-400 mb-4"
-                      />
-                      <p className="font-semibold text-gray-700">
-                        Drop icon here or click to upload
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        PNG, JPG, SVG up to 2MB
-                      </p>
-                    </div>
-                  )}
-                </label>
+              <div>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-orange-500 transition-colors cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={onImageChange}
+                    className="hidden"
+                    id="icon-upload"
+                  />
+                  <label htmlFor="icon-upload" className="cursor-pointer block">
+                    {formData.iconPreview ? (
+                      <div>
+                        <img
+                          src={formData.iconPreview}
+                          alt="Preview"
+                          className="w-20 h-20 mx-auto rounded-lg object-cover"
+                        />
+                        <p className="mt-2 text-sm text-gray-600">
+                          Click to change image
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <Upload
+                          size={32}
+                          className="mx-auto text-gray-400 mb-2"
+                        />
+                        <p className="font-medium text-gray-700">
+                          Drop here or click to upload
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          PNG, JPG, SVG up to 2MB
+                        </p>
+                      </div>
+                    )}
+                  </label>
+                </div>
               </div>
             )}
 
             {formData.iconInputType === "url" && (
-              <div className="space-y-4">
-                <input
-                  type="url"
-                  value={formData.iconUrl}
-                  onChange={onIconUrlChange}
-                  placeholder="https://example.com/icon.svg"
-                  className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all"
-                />
-                {formData.iconUrl && (
-                  <img
-                    src={formData.iconUrl}
-                    alt="Preview"
-                    className="w-24 h-24 rounded-2xl object-cover shadow-lg"
-                    onError={(e) => (e.currentTarget.style.display = "none")}
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <Link size={18} className="text-gray-400 self-center" />
+                  <input
+                    type="url"
+                    value={urlInput}
+                    onChange={(e) => setUrlInput(e.target.value)}
+                    onKeyDown={handleUrlKeyDown}
+                    placeholder="https://example.com/icon.svg"
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   />
+                  <button
+                    type="button"
+                    onClick={handleApplyUrl}
+                    className="px-4 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
+                  >
+                    Apply
+                  </button>
+                </div>
+
+                {/* Show current icon preview if exists */}
+                {formData.iconUrl && (
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={formData.iconUrl}
+                      alt="Preview"
+                      className="w-16 h-16 rounded-lg object-cover border border-gray-200"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                        alert("Failed to load image from URL");
+                      }}
+                    />
+                    <span className="text-sm text-gray-500">Current icon</span>
+                  </div>
                 )}
               </div>
             )}
           </div>
 
           {/* Buttons */}
-          <div className="flex gap-4 pt-6">
+          <div className="flex gap-3 pt-4">
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-5 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-105 disabled:opacity-70"
+              className="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-medium py-3 rounded-lg transition-colors disabled:opacity-50"
             >
               {loading
                 ? "Saving..."
@@ -284,7 +333,7 @@ const ServiceModal = ({
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-5 rounded-2xl transition-all"
+              className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 rounded-lg transition-colors"
             >
               Cancel
             </button>
