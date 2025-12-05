@@ -81,8 +81,6 @@ export const UPDATE_SERVICE = gql`
 
 export const DELETE_SERVICE = gql`
   mutation DeleteService($id: ID!) {
-    deleteService(id: $id) {
-      id
-    }
+    deleteService(id: $id)
   }
 `;
