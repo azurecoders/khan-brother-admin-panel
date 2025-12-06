@@ -20,7 +20,7 @@ const OverviewContent = () => {
   // Static values (can be made dynamic later with a settings table)
   const staticStats = {
     happyClients: 150,
-    yearsOfExperience: 15,
+    yearsOfExperience: 1,
   };
 
   const statsCards = [
