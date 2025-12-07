@@ -28,7 +28,7 @@ export default function Dashboard() {
     { id: "testimonials", label: "Testimonials" },
     { id: "messages", label: "Messages" },
     { id: "admins", label: "Administrators" },
-    { id: "settings", label: "Settings" },
+    // { id: "settings", label: "Settings" },
   ];
 
   const renderContent = () => {
@@ -49,8 +49,8 @@ export default function Dashboard() {
         return <Messages />;
       case "admins":
         return <AdminsContent />;
-      case "settings":
-        return <SettingsContent />;
+      // case "settings":
+      //   return <SettingsContent />;
       default:
         return <OverviewContent />;
     }
