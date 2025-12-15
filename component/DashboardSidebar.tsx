@@ -40,7 +40,7 @@ const DashboardSidebar = ({
     testimonials: <Users size={20} />,
     messages: <MessageSquare size={20} />,
     admins: <Users size={20} />,
-    settings: <Settings size={20} />, // ← Settings icon added
+    // settings: <Settings size={20} />, // ← Settings icon added
   };
 
   const handleLogout = async () => {
@@ -74,20 +74,18 @@ const DashboardSidebar = ({
 
       {/* Mobile Overlay */}
       <div
-        className={`fixed inset-0 bg-black/50 md:hidden z-40 transition-opacity duration-300 ${
-          isSidebarOpen
+        className={`fixed inset-0 bg-black/50 md:hidden z-40 transition-opacity duration-300 ${isSidebarOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
-        }`}
+          }`}
         onClick={() => onToggle(false)}
         aria-hidden="true"
       />
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed md:static top-0 left-0 h-screen bg-primary text-primary-foreground shadow-xl md:shadow-none flex flex-col transition-transform duration-300 z-50 md:z-auto ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-        }`}
+        className={`fixed md:static top-0 left-0 h-screen bg-primary text-primary-foreground shadow-xl md:shadow-none flex flex-col transition-transform duration-300 z-50 md:z-auto ${isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          }`}
         style={{
           width: "16rem",
           minWidth: "256px",
@@ -155,16 +153,14 @@ const DashboardSidebar = ({
                   onToggle(false);
                 }}
                 aria-current={isActive ? "page" : undefined}
-                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-secondary ${
-                  isActive
+                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-secondary ${isActive
                     ? "bg-secondary text-white shadow-lg"
                     : "text-blue-100 hover:bg-primary-hover hover:text-white"
-                }`}
+                  }`}
               >
                 <span
-                  className={`flex-shrink-0 ${
-                    isActive ? "text-white" : "text-blue-300"
-                  }`}
+                  className={`flex-shrink-0 ${isActive ? "text-white" : "text-blue-300"
+                    }`}
                 >
                   {iconMap[link.id]}
                 </span>
